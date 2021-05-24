@@ -30,7 +30,7 @@
 -- 	results in the desired deletion key not having a value -> a no-op 
 --	e.g. changeDictionary = { keyToRemove = nil }
 local NIL_TOKEN = "\n"
-print("Hello world!")
+
 
 local DataService = { NIL_TOKEN = NIL_TOKEN }
 local Network, Players, ProfileUtil
@@ -111,7 +111,7 @@ function DataService:SetKeys(client, routeString, changeDictionary, doNotReplica
 		for subDir in string.gmatch(routeString, "%w+") do
 			assert(root[subDir] ~= nil, 
 				string.format(
-					"Cannot reach %[%s%], invalid route %[%s%]", 
+					"Cannot reach (%s), invalid route (%s)", 
 					subDir, 
 					routeString
 				)

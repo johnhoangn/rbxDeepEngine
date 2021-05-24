@@ -51,13 +51,7 @@ local function ReceiveChange(dt, routeString, changeDictionary)
 	local root = DataCache
 	
 	for subDir in string.gmatch(routeString, "%w+") do
-		assert(root[subDir] ~= nil, 
-			string.format(
-				"Cannot reach %[%s%], invalid route %[%s%]", 
-				subDir, 
-				routeString
-			)
-		)
+
 		root = root[subDir]
 	end
 	
