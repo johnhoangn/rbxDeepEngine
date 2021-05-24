@@ -1,5 +1,5 @@
 local SoundService = {}
-local Network, Players
+local HttpService, Network, Players
 
 
 local ActiveSounds
