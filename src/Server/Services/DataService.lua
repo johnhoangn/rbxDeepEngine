@@ -94,7 +94,7 @@ end
 -- Retrieves the data table for a client
 -- @param client
 function DataService:GetData(client)
-	return ActiveProfiles[client].Profile.Data
+	return ActiveProfiles[client].Data
 end
 
 
