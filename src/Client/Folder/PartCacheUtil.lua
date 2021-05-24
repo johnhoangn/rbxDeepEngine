@@ -35,7 +35,7 @@ numCaches = 2
 cacheSize = 200
 
 cacheSelector = Random.new()
-pCache = require(script.Cache)
+pCache = require(script.Parent.PartCache)
 caches = {}
 lended = {}
 
