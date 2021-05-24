@@ -39,3 +39,7 @@ luac.out
 *.x86_64
 *.hex
 
+.vscode/settings.json
+**/init.meta.json
+default.project.json
+Todo.server.lua
