@@ -129,6 +129,14 @@ local function StartServices(numServices)
 end
 
 
+-- Loads and runs plugins
+local function DoPlugins()
+	for _, pluginModule in ipairs(ClientFolder.Plugins:GetChildren()) do
+		require(pluginModule)
+	end
+end
+
+
 -- Lazyload setup for general modules
 setmetatable(Engine.Modules, {
 	__index = function(tbl, key)
@@ -192,6 +200,7 @@ LoadEnums()
 local Services = LoadServices()
 InitServices(Services)
 StartServices(#Services)
+DoPlugins()
 _G.DeepEngineOnline = true
 Engine.Services.ReadyService:SignalReady()
 
