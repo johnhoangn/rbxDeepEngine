@@ -43,6 +43,4 @@ luac.out
 **/init.meta.json
 default.project.json
 Todo.server.lua
-Assets
-Preloads
-Roblox
+**/Plugins
