@@ -17,7 +17,7 @@ function Instancer:Make(className, ...)
 	local class = CustomClass[className]
 	
 	assert(class ~= nil, "Invalid class: " .. className)
-	
+
 	local newInstance = class.new(...)
 	
     return newInstance
@@ -70,7 +70,19 @@ function Instancer:EngineInit()
 				local classModule = ClassFolder:FindFirstChild(class)
 				
 				assert(classModule ~= nil, "Invalid class " .. class)
-				classModule = require(classModule)				
+
+				classModule = require(classModule)
+                
+                if (class.ClassName == nil) then
+                    class.ClassName = class
+                end
+
+                assert(classModule.Is == nil, ":Is() is reserved")
+
+                function classModule:Is(isA)
+                    return Instancer:ClassDescent(self, isA)
+                end
+
 				rawset(tbl, class, classModule)
 				self:Link(classModule)
 				
