@@ -7,9 +7,6 @@ local Clients = game:GetService("Players")
 assert(EngineFolder.Parent == game:GetService("ServerScriptService"), 
 	"Please place the Engine into ServerScriptService!")
 
-assert(EngineFolder.Parent:FindFirstChild("Plugins") ~= nil, 
-	"Please also place the Plugins folder into ServerScriptService!")
-
 
 -- Block loading
 Clients.CharacterAutoLoads = false
@@ -177,7 +174,7 @@ end
 
 -- Loads and runs plugins
 local function DoPlugins()
-	for _, pluginModule in ipairs(EngineFolder.Parent.Plugins:GetChildren()) do
+	for _, pluginModule in ipairs(Server.Plugins:GetChildren()) do
 		require(pluginModule)
 	end
 end
