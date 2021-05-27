@@ -6,6 +6,7 @@
 
 local MetronomeService = {Priority = 1001}
 local Frequencies = {}
+local Tasks = {}
 local HTTPService, RunService
 
 
@@ -26,14 +27,26 @@ function MetronomeService:BindToFrequency(frequency, callback)
         frequencyTasks.Tasks[taskID] = callback
     end
 
+    Tasks[taskID] = {
+        Frequency = frequency;
+        Callback = callback;
+    }
+
     return taskID
 end
 
 
 -- Unbinds a callback from a frequency group
--- @param frequency, group to unbind from
 -- @param taskID, of the callback
-function MetronomeService:UnbindFromFrequency(frequency, taskID)
+function MetronomeService:Unbind(taskID)
+    local task = Tasks[taskID]
+
+    assert(task ~= nil, "Invalid taskID " .. taskID)
+
+    local frequency = task.Frequency
+
+    Tasks[taskID] = nil
+
     Frequencies[frequency].Tasks[taskID] = nil
     Frequencies[frequency].NumTasks -= 1
 
