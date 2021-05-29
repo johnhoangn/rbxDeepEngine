@@ -93,7 +93,7 @@ end
 
 function IndexedMap:GetByIndex(index)
 	local bundle = self.Storage[index]
-	
+
 	if (bundle == nil) then
 		return nil
 	else
@@ -103,7 +103,19 @@ end
 
 
 function IndexedMap:Iterator()
-	return ipairs(self.Storage)
+    local index = 0
+
+	return function()
+        index += 1
+
+        local bundle = self.Storage[index]
+
+		if (bundle ~= nil) then
+			return index, bundle.Payload
+		else
+			return nil
+		end
+    end
 end
 
 
@@ -139,7 +151,7 @@ function IndexedMap:ToArray()
 	local arr = table.create(self.Size)
 	
 	for _, elem in self:Iterator() do
-		table.insert(arr, elem.Payload)
+		table.insert(arr, elem)
 	end
 	
 	return arr
