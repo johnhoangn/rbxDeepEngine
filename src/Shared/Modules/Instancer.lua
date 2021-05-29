@@ -24,7 +24,7 @@ function Instancer:Make(className, ...)
 end
 
 
--- Helper for Object:IsA()
+-- Helper for Object:IsE()
 -- @param instance to check class descent of
 -- @param isA class to check class descent from
 -- @return true if instance is of class descent
@@ -73,13 +73,13 @@ function Instancer:EngineInit()
 
 				classModule = require(classModule)
                 
-                if (class.ClassName == nil) then
-                    class.ClassName = class
+                if (classModule.ClassName == nil) then
+                    classModule.ClassName = class
                 end
 
-                assert(classModule.Is == nil, ":Is() is reserved")
+                assert(classModule.IsE == nil, ":IsE() is reserved: " .. class)
 
-                function classModule:Is(isA)
+                function classModule:IsE(isA)
                     return Instancer:ClassDescent(self, isA)
                 end
 
