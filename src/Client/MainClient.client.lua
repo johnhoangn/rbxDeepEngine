@@ -1,3 +1,9 @@
+-- !! Wait for builtin replication !!
+if (not game:IsLoaded()) then
+	game.Loaded:Wait()
+end
+
+
 -- !! Initialize Client !!
 local ClientFolder = script.Parent
 local CachedGeneralModules = {}
