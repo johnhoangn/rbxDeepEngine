@@ -94,7 +94,8 @@ end
 -- Retrieves the data table for a client
 -- @param client
 function DataService:GetData(client)
-	return ActiveProfiles[client].Data
+    local profile = ActiveProfiles[client]
+	return profile ~= nil and profile.Data or nil
 end
 
 
@@ -217,13 +218,13 @@ end
 function DataService:EngineStart()
 	Players.PlayerAdded:Connect(HandleClientJoin)
 	Players.PlayerRemoving:Connect(HandleClientLeave)
-	
+
 	-- Process already joined players
 	for _, unHandledPlayer in ipairs(Players:GetPlayers()) do
 		if (self:GetData(unHandledPlayer) == nil) then
 			HandleClientJoin(unHandledPlayer)
 		end
-	end 
+	end
 end
 
 
