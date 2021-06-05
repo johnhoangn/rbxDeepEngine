@@ -19,6 +19,7 @@ function Effect.new(effectAsset)
 	local effectModule = require(effectAsset.EffectModule)
 	local baseID = effectAsset.Folder.Parent.Name .. effectAsset.Folder.Name
 	
+    -- I *really* don't trust myself to remember all of these methods when creating FX
 	assert(typeof(effectModule.Play) == "function", "Missing or Invalid :Play() effect method: " .. baseID)
 	assert(typeof(effectModule.Change) == "function", "Missing or Invalid :Change() effect method: " .. baseID)
 	assert(typeof(effectModule.Stop) == "function", "Missing or Invalid :Stop() effect method: " .. baseID)
