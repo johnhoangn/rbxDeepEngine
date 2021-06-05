@@ -16,7 +16,7 @@
 		
 	A ClassID is an integer from Engine.Enums.AssetClass
 	
-	An AssetID is a unique-to-the-class integer in the bounds [0, INF]
+	An AssetID is a unique-to-the-class integer in the bounds [0, INF)
 		where two different assets A and B have AssetIDs 0 and 1
 		
 	As an Example: Engine.Enums.AssetClass.Template .. 0 -> "FF" .. 0 -> "FF0"
