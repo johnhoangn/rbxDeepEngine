@@ -11,11 +11,6 @@ IndexedMap.__index = function(tbl, index)
 end
 
 
-local function I(i)
-	return i + 1
-end
-
-
 function IndexedMap.new()
 	return setmetatable({
 		Size = 0;
