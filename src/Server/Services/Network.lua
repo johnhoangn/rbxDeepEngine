@@ -302,6 +302,7 @@ end
 -- @param requestType
 -- @param requestHandler == function(client, deltaTime, ...)
 function Network:HandleRequestType(requestType, requestHandler)
+    assert(requestHandler ~= nil, "nil request handler")
 	assert(RequestHandlers:Get(requestType) == nil, 
 		"Attempt to overwrite requestHandler for " .. requestType)
 	RequestHandlers:Add(requestType, requestHandler)
@@ -342,6 +343,20 @@ end
 
 function Network:EngineStart()
 	Router.OnServerEvent:Connect(HandleInbound)
+    
+    self:HandleBulkRequest(NetRequestType.BulkRequest, HandleBulkRequest)
+
+    --
+    ThreadUtil.Delay(5, function()
+        self:FireClient(Players:GetPlayers()[1], self:Pack(
+            NetProtocol.Forget,
+            NetRequestType.Test,
+            "Hello, world!",
+            "foo bar",
+            420
+        ))
+    end)
+    --]]
 end
 
 
