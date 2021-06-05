@@ -48,7 +48,7 @@ end
 -- @param pre_dt to reach server (from original client, if applicable, DEFAULT == 0)
 -- @param effectUID
 -- @param ... remove args
-local function HandleServerRemove(dt, pre_dt, effectUID, ...)
+local function HandleServerStop(dt, pre_dt, effectUID, ...)
 	EffectService:StopEffect(effectUID, pre_dt + dt, ...)
 end
 
@@ -77,10 +77,10 @@ function EffectService:Make(baseID, effectUID, ...)
 			ActiveEffects:Remove(effectUID)
 			
 			-- Prepare for re-use
-			effect:Reset()			
-						
+			effect:Reset()
+
 			-- Create a effect-type queue if needed
-			if (cache == nil) then
+			if (not EffectCaches:Contains(baseID)) then
 				EffectCaches:Add(baseID, self.Instancer:Make("Queue"))
 			end
 			
@@ -135,7 +135,7 @@ end
 function EffectService:EngineStart()
 	Network:HandleRequestType(Network.NetRequestType.Effect, HandleServerCreate)
 	Network:HandleRequestType(Network.NetRequestType.EffectChange, HandleServerChange)
-	Network:HandleRequestType(Network.NetRequestType.EffectStop, HandleServerRemove)
+	Network:HandleRequestType(Network.NetRequestType.EffectStop, HandleServerStop)
 end
 
 
