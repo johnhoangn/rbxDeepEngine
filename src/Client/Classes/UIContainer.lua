@@ -1,12 +1,13 @@
 local Interface
-local UIContainer = {ClassName = "UIContainer"}
+local UIContainer = {}
 UIContainer.__index = UIContainer
 
 
 
+-- UIContainer constructor, optional x and y coordinates to initialize
 -- @param instance, the Frame this container wraps
--- @param x == instance.AbsolutePosition.X, position to place the element at
--- @param y == instance.AbsolutePosition.Y, see param x
+-- @param x == instance.AbsolutePosition.X <Float>
+-- @param y == instance.AbsolutePosition.Y <Float>
 function UIContainer.new(instance, x, y)
     Interface = Interface or UIContainer.Services.Interface
 
@@ -19,7 +20,7 @@ function UIContainer.new(instance, x, y)
         Anchored = instance:FindFirstChild("Dragger") == nil;
     }, UIContainer)
 
-    self.TogglerMaid = self.Instancer:Make("Maid")
+    self.Maid = self.Instancer:Make("Maid")
     self:Bind()
     self:GuaranteeBounds()
 
@@ -55,7 +56,7 @@ end
 
 -- Binds events and gives them to a maid
 function UIContainer:Bind()
-    self.TogglerMaid:GiveTask(
+    self.Maid:GiveTask(
         self.Instance.MouseEnter:Connect(function()
             if (not Interface:Obscured(self)) then
                 Interface:SetActiveContainer(self)
@@ -63,7 +64,7 @@ function UIContainer:Bind()
         end)
     )
 
-    self.TogglerMaid:GiveTask(
+    self.Maid:GiveTask(
         self.Instance.MouseLeave:Connect(function()
             if (Interface:GetActiveContainer() == self and not Interface:Obscured(self)) then
                 Interface:SetActiveContainer(nil)
@@ -72,7 +73,7 @@ function UIContainer:Bind()
     )
 
     if (not self.Anchored) then
-        self.TogglerMaid:GiveTask(
+        self.Maid:GiveTask(
             self.Instance.Dragger.MouseButton1Down:Connect(function()
                 if (not Interface:Obscured(self)) then
                     self:DragStart()
@@ -85,7 +86,7 @@ end
 
 -- Clears active event bindings
 function UIContainer:Unbind()
-    self.TogglerMaid:DoCleaning()
+    self.Maid:DoCleaning()
 end
 
 
