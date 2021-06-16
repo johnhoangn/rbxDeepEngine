@@ -1,5 +1,5 @@
 local Interface = {}
-local Network, MetronomeService, UserInputService, PlayerGui
+local MetronomeService, UserInputService, PlayerGui
 local MouseInstance
 
 
@@ -8,12 +8,12 @@ local AllContainers, OpenContainers
 
 
 -- Retrieves top level container, dangerous
--- @param element
-local function GetContainer(element)
-    if (element.Parent == PlayerGui.Screen) then
-        return element
+-- @param gui <Frame>
+local function GetContainer(gui)
+    if (gui.Parent == PlayerGui.Screen) then
+        return gui
     else
-       return GetContainer(element.Parent)
+       return GetContainer(gui.Parent)
     end
 end
 
@@ -34,6 +34,36 @@ local function BuildContainers()
                 element,
                 container
             )
+
+            for _, elementDescendant in ipairs(element:GetChildren()) do
+                if (element:FindFirstChild("UIButton")) then
+                    container:AddButton(
+                        Interface.Instancer:Make(
+                            "UIButton",
+                            elementDescendant,
+                            container
+                        )
+                    )
+                elseif (element:FindFirstChild("UISlider")) then
+                    container:AddButton(
+                        Interface.Instancer:Make(
+                            "UISlider",
+                            elementDescendant,
+                            nil, -- Leave default value to a GUI Controller
+                            container
+                        )
+                    )
+                elseif (element:FindFirstChild("UIToggle")) then
+                    container:AddButton(
+                        Interface.Instancer:Make(
+                            "UIToggle",
+                            elementDescendant,
+                            nil, -- Leave default value to a GUI Controller
+                            container
+                        )
+                    )
+                end
+            end
         end
     end
 end
@@ -71,7 +101,7 @@ end
 
 -- Brings an element to the front and drops everything else, that
 --  was above it, down one
--- @param element
+-- @param element <UIContainer>
 function Interface:BringToFront(element)
     local hole = element.Instance.ZIndex
 
@@ -94,8 +124,8 @@ end
 
 
 -- Checks if a UI element is obscured at Mouse.X/Y
--- @param element, UIElement class
--- @return boolean
+-- @param element, <UIElement>
+-- @return <boolean>
 function Interface:Obscured(element)
     -- Saves some compute
     if (element.Instance.ZIndex == OpenContainers.Size) then
@@ -120,33 +150,35 @@ end
 
 
 -- Assigns a container to be active
--- @param container
+-- @param container <UIContainer>
 function Interface:SetActiveContainer(container)
     ActiveContainer = container
 end
 
 
 -- Assigns a cell to be active
--- @param cell
+-- @param cell <UICell>
 function Interface:SetActiveCell(cell)
     ActiveCell = cell
 end
 
 
 -- Retrieves the container that currently houses the mouse
+-- @returns <UIContainer>
 function Interface:GetActiveContainer()
     return ActiveContainer
 end
 
 
 -- Retrieves the cell that currently houses the mouse
+-- @returns <UICell>
 function Interface:GetActiveCell()
     return ActiveCell
 end
 
 
--- Drops the dragging element
--- @param element
+-- Drops the dragging UIElement
+-- @param element <UIElement>
 function Interface:DragStop(element)
     assert(DraggingElement == element, "Dropped element was not the active dragging element or multiple drag")
 
@@ -162,7 +194,7 @@ end
 
 
 -- Starts to drag an element
--- @param element
+-- @param element <UIElement>
 function Interface:Drag(element)
     assert(DraggingElement == nil, "Attempt to double drag")
 
@@ -208,7 +240,6 @@ end
 
 
 function Interface:EngineInit()
-	Network = self.Services.Network
     MetronomeService = self.Services.MetronomeService
     UserInputService = self.RBXServices.UserInputService
 
