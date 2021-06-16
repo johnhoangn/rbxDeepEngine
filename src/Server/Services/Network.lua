@@ -344,7 +344,7 @@ end
 function Network:EngineStart()
 	Router.OnServerEvent:Connect(HandleInbound)
     
-    self:HandleBulkRequest(NetRequestType.BulkRequest, HandleBulkRequest)
+    self:HandleRequestType(NetRequestType.BulkRequest, HandleBulkRequest)
 
     --
     ThreadUtil.Delay(5, function()
