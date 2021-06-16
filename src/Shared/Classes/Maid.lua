@@ -27,8 +27,6 @@
 -- @see Signal
 
 local Maid = {}
-Maid.ClassName = "Maid"
-
 local Promise
 
 
