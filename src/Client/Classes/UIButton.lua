@@ -3,7 +3,10 @@ local UIButton = {}
 UIButton.__index = UIButton
 
 
-
+-- UIToggle constructor
+-- @param element <Frame>
+-- @param container <UIContainer>
+-- @returns <UIToggle>
 function UIButton.new(element, container)
     Interface = Interface or UIButton.Services.Interface
 
