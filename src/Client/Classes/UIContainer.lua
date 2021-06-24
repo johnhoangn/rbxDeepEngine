@@ -18,6 +18,7 @@ function UIContainer.new(instance, x, y)
             Y = y or instance.AbsolutePosition.Y;
         };
         Anchored = instance:FindFirstChild("Dragger") == nil;
+        Children = {};
     }, UIContainer)
 
     self.Maid = self.Instancer:Make("Maid")
@@ -90,22 +91,55 @@ function UIContainer:Unbind()
 end
 
 
-function UIContainer:Open()
+-- Adds a UIElement as child to this container
+-- @param element <UIElement>
+-- @param name <string>
+function UIContainer:AddChild(element, name)
+    self.Children[name] = element
+end
+
+
+-- Removes a UIElement from this container
+-- @param name <string>
+function UIContainer:RemoveChild(name)
+    self.Children[name] = nil
+end
+
+
+-- Retrieves a child by name
+-- @param name <string>
+-- @return <UIElement>
+function UIContainer:GetChild(name)
+    local child = self.Children[name]
+
+    assert(child ~= nil, "Invalid child " .. name)
+
+    return child
+end
+
+
+-- TODO: Move to UIElement superclass
+function UIContainer:Show()
     self.Instance.Visible = true
 end
 
 
-function UIContainer:Close()
+-- TODO: Move to UIElement superclass
+function UIContainer:Hide()
     self.Instance.Visible = false
 end
 
 
+-- TODO: Move to UIElement superclass
 function UIContainer:GetContainer()
     return self
 end
 
 
 function UIContainer:Destroy()
+    for k, _ in pairs(self.Children) do
+        self.Children[k] = nil
+    end
     self:Unbind()
     self.Instance:Destroy()
 end
