@@ -1,3 +1,19 @@
+-- Default interface manager for DeepEngine
+-- Enduo(Dynamese)
+-- 6.24.2021
+
+-- If using this manager, GUI elements must be created from or matching the templates provided
+-- This manager creates a system similar to modern operating systems' "active" window functionality
+--  allowing multiple draggable windows (containers) to be laid on top of eachother and whenever
+--  a lower container or its children are interacted with, the entire container will be brought
+--  to the front, and set as active
+
+-- This manager also handles draggable "cells" which are common in modern video games,
+--  enabling the developer to implement "drag-and-drop" systems with relative ease
+--  by having all of that logic already in place
+
+
+
 local Interface = {}
 local MetronomeService, UserInputService, PlayerGui
 local MouseInstance
@@ -242,11 +258,15 @@ function Interface:Drag(element)
 end
 
 
+-- Retrieves all containers, visible or not
+-- @returns <HashMap>
 function Interface:GetAllContainers()
     return AllContainers:ToMap()
 end
 
 
+-- Retrieves all visible containers
+-- @returns <HashMap>
 function Interface:GetOpenContainers()
     return OpenContainers:ToMap()
 end
@@ -261,6 +281,17 @@ function Interface:GetContainer(name)
     assert(container ~= nil, "No container by " .. name)
 
     return container
+end
+
+
+-- Places a container at a position
+-- @param name <string>
+-- @param position <UDIM2>
+function Interface:PlaceContainer(name, position)
+    local container = self:GetContainer(name)
+
+    container.Instance.Position = position
+    container:GuaranteeBounds()
 end
 
 
