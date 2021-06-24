@@ -7,13 +7,13 @@ local ActiveContainer, ActiveCell, DraggingElement
 local AllContainers, OpenContainers
 
 
--- Retrieves top level container, dangerous
+-- Retrieves top level UI before the ScreenGUI, dangerous
 -- @param gui <Frame>
-local function GetContainer(gui)
+local function GetUI(gui)
     if (gui.Parent == PlayerGui.Screen) then
         return gui
     else
-       return GetContainer(gui.Parent)
+       return GetUI(gui.Parent)
     end
 end
 
@@ -25,42 +25,45 @@ local function BuildContainers()
         if (element:IsA("Frame")) then
             local container = Interface.Instancer:Make("UIContainer", element)
 
+            assert(not OpenContainers:Contains(element.Name), "Duplicate container name " .. element.Name)
+            assert(not AllContainers:Contains(element.Name), "Duplicate container name " .. element.Name)
+
             OpenContainers:Add(
-                element,
+                element.Name,
                 container
             )
 
             AllContainers:Add(
-                element,
+                element.Name,
                 container
             )
-
+            
             for _, elementDescendant in ipairs(element:GetChildren()) do
-                if (element:FindFirstChild("UIButton")) then
-                    container:AddButton(
+                if (elementDescendant:FindFirstChild("UIButton")) then
+                    container:AddChild(
                         Interface.Instancer:Make(
                             "UIButton",
                             elementDescendant,
                             container
-                        )
+                        ), elementDescendant.Name
                     )
-                elseif (element:FindFirstChild("UISlider")) then
-                    container:AddButton(
+                elseif (elementDescendant:FindFirstChild("UISlider")) then
+                    container:AddChild(
                         Interface.Instancer:Make(
                             "UISlider",
                             elementDescendant,
                             nil, -- Leave default value to a GUI Controller
                             container
-                        )
+                        ), elementDescendant.Name
                     )
-                elseif (element:FindFirstChild("UIToggle")) then
-                    container:AddButton(
+                elseif (elementDescendant:FindFirstChild("UIToggle")) then
+                    container:AddChild(
                         Interface.Instancer:Make(
                             "UIToggle",
                             elementDescendant,
                             nil, -- Leave default value to a GUI Controller
                             container
-                        )
+                        ), elementDescendant.Name
                     )
                 end
             end
@@ -82,7 +85,7 @@ local function ListenForWakeups()
                     continue
                 end
 
-                local container = AllContainers:Get(GetContainer(element))
+                local container = AllContainers:Get(GetUI(element).Name)
 
                 if (container == nil) then
                     continue
@@ -128,7 +131,7 @@ end
 -- @return <boolean>
 function Interface:Obscured(element)
     -- Saves some compute
-    if (element.Instance.ZIndex == OpenContainers.Size) then
+    if (GetUI(element.Instance).ZIndex == OpenContainers.Size) then
         return false
     end
 
@@ -236,6 +239,28 @@ function Interface:Drag(element)
         self:DragStop(element)
         maid:Destroy()
     end)
+end
+
+
+function Interface:GetAllContainers()
+    return AllContainers:ToMap()
+end
+
+
+function Interface:GetOpenContainers()
+    return OpenContainers:ToMap()
+end
+
+
+-- Retrieves the container identified by name
+-- @param name <string>
+-- @returns <UIContainer>
+function Interface:GetContainer(name)
+    local container = AllContainers:Get(name)
+
+    assert(container ~= nil, "No container by " .. name)
+
+    return container
 end
 
 
