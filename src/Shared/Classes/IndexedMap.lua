@@ -2,7 +2,7 @@ local IndexedMap = {}
 IndexedMap.__index = function(tbl, index)
 	local iType = typeof(index)
 	if (iType == "number") then
-		return tbl.Storage[index]
+		return tbl._Storage[index]
 	elseif (iType == "instance") then
 		return nil
 	else
@@ -14,8 +14,8 @@ end
 function IndexedMap.new()
 	return setmetatable({
 		Size = 0;
-		Storage = {};
-		HashMap = {};
+		_Storage = {};
+		_HashMap = {};
 	}, IndexedMap)
 end
 
@@ -23,7 +23,7 @@ end
 function IndexedMap:IndexOf(key)
 	if (key == nil) then return nil end
 	
-	local bundle = self.HashMap[key]
+	local bundle = self._HashMap[key]
 	
 	if (bundle == nil) then
 		return -1
@@ -46,26 +46,26 @@ function IndexedMap:Add(key, data)
 		Index = insertedAt;
 	}
 	
-	self.HashMap[key] = bundle
-	self.Storage[insertedAt] = bundle
+	self._HashMap[key] = bundle
+	self._Storage[insertedAt] = bundle
 	self.Size += 1
 end
 
 
 function IndexedMap:Remove(key)
-	local targetBundle = self.HashMap[key]
+	local targetBundle = self._HashMap[key]
 	
 	if (targetBundle == nil) then
 		return nil
 	end
 	
-	local replacementBundle = self.Storage[self.Size]
+	local replacementBundle = self._Storage[self.Size]
 	
 	replacementBundle.Index = targetBundle.Index
 	
-	self.HashMap[key] = nil
-	self.Storage[targetBundle.Index] = replacementBundle
-	self.Storage[self.Size] = nil
+	self._HashMap[key] = nil
+	self._Storage[targetBundle.Index] = replacementBundle
+	self._Storage[self.Size] = nil
 	self.Size -= 1
 	
 	return targetBundle.Payload
@@ -76,7 +76,7 @@ function IndexedMap:Get(key)
 	if (key == nil) then return nil end
 	
 	--assert(self:Contains(key), "Map does not contain key: " .. tostring(key))
-	local bundle = self.HashMap[key]
+	local bundle = self._HashMap[key]
 	
 	if (bundle == nil) then
 		return nil
@@ -87,7 +87,7 @@ end
 
 
 function IndexedMap:GetByIndex(index)
-	local bundle = self.Storage[index]
+	local bundle = self._Storage[index]
 
 	if (bundle == nil) then
 		return nil
@@ -103,7 +103,7 @@ function IndexedMap:Iterator()
 	return function()
         index += 1
 
-        local bundle = self.Storage[index]
+        local bundle = self._Storage[index]
 
 		if (bundle ~= nil) then
 			return index, bundle.Payload
@@ -118,7 +118,7 @@ function IndexedMap:KeyIterator()
 	local keys = table.create(self.Size)
 	local i = 1
 	
-	for key, _ in pairs(self.HashMap) do
+	for key, _ in pairs(self._HashMap) do
 		keys[i] = key
 		i += 1
 	end
@@ -131,7 +131,7 @@ function IndexedMap:KeyIterator()
 	
 	return function()
 		i += 1
-		local bundle = self.HashMap[keys[i]]
+		local bundle = self._HashMap[keys[i]]
 		
 		if (bundle ~= nil) then
 			return keys[i], bundle.Payload
@@ -153,10 +153,10 @@ function IndexedMap:ToArray()
 end
 
 
-function IndexedMap:HashMap()
+function IndexedMap:ToMap()
 	local map = {}
 	
-	for k, v in pairs(self.HashMap) do
+	for k, v in pairs(self._HashMap) do
 		map[k] = v.Payload
 	end
 	
