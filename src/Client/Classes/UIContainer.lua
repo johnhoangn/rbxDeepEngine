@@ -1,3 +1,9 @@
+-- UIContainer Class, represents a Frame directly descendant to the ScreenGUI
+-- Enduo(Dynamese)
+-- 6.24.2021
+
+
+
 local Interface
 local UIContainer = {}
 UIContainer.__index = UIContainer
@@ -13,12 +19,8 @@ function UIContainer.new(instance, x, y)
 
     local self = setmetatable({
         Instance = instance;
-        Position = {
-            X = x or instance.AbsolutePosition.X;
-            Y = y or instance.AbsolutePosition.Y;
-        };
         Anchored = instance:FindFirstChild("Dragger") == nil;
-        Children = {};
+        _Children = {};
     }, UIContainer)
 
     self.Maid = self.Instancer:Make("Maid")
@@ -95,14 +97,14 @@ end
 -- @param element <UIElement>
 -- @param name <string>
 function UIContainer:AddChild(element, name)
-    self.Children[name] = element
+    self._Children[name] = element
 end
 
 
 -- Removes a UIElement from this container
 -- @param name <string>
 function UIContainer:RemoveChild(name)
-    self.Children[name] = nil
+    self._Children[name] = nil
 end
 
 
@@ -110,7 +112,7 @@ end
 -- @param name <string>
 -- @return <UIElement>
 function UIContainer:GetChild(name)
-    local child = self.Children[name]
+    local child = self._Children[name]
 
     assert(child ~= nil, "Invalid child " .. name)
 
@@ -137,8 +139,8 @@ end
 
 
 function UIContainer:Destroy()
-    for k, _ in pairs(self.Children) do
-        self.Children[k] = nil
+    for k, _ in pairs(self._Children) do
+        self._Children[k] = nil
     end
     self:Unbind()
     self.Instance:Destroy()
