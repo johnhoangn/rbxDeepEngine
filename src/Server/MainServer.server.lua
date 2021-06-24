@@ -244,8 +244,8 @@ LoadEnums()
 local Services = LoadServices()
 InitServices(Services)
 StartServices(#Services):Wait()
-DoPlugins()
 _G.DeepEngineOnline = true
+DoPlugins()
 
 
 -- !! Initialize Client Setup !!

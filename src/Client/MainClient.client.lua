@@ -206,9 +206,9 @@ LoadEnums()
 local Services = LoadServices()
 InitServices(Services)
 StartServices(#Services)
-DoPlugins()
 _G.DeepEngineOnline = true
 Engine.Services.ReadyService:SignalReady()
+DoPlugins()
 
 
 -- Cleanup
