@@ -64,26 +64,26 @@ end
 
 
 function Effect:Stop(...)
-	if (self.State == self.Enums.EffectState.Playing) then
-		self.State = self.Enums.EffectState.Stopped
-		self.Module:Stop(...)
-		self.OnStop:Fire()
-	end
+    if (self.State == self.Enums.EffectState.Playing) then
+        self.State = self.Enums.EffectState.Stopped
+        self.Module:Stop(...)
+        self.OnStop:Fire()
+    end
 end
 
 
 function Effect:Reset(...)
-	self.Module:Reset(...)
-	self.State = self.Enums.EffectState.Ready
+    self.Module:Reset(...)
+    self.State = self.Enums.EffectState.Ready
 end
 
 
 function Effect:Destroy(...)
-	self.Module:Destroy(...)
-	self.OnDestroy:Fire()
-	
-	self.OnPlay:Destroy()
-	self.OnStop:Destroy()
+    self.Module:Destroy(...)
+    self.OnDestroy:Fire()
+
+    self.OnPlay:Destroy()
+    self.OnStop:Destroy()
 end
 
 
