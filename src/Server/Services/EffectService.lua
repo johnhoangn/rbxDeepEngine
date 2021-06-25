@@ -98,7 +98,7 @@ function EffectService:EngineInit()
 	
 	HttpService = self.RBXServices.HttpService
 	
-	ActiveEffects = self.Instancer:Make("IndexedMap")
+	ActiveEffects = self.Classes.IndexedMap.new()
 end
 
 

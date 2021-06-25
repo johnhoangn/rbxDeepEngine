@@ -6,8 +6,10 @@
 
 
 
+local DeepObject = require(script.Parent.DeepObject)
 local Sound = {}
 Sound.__index = Sound
+setmetatable(Sound, DeepObject)
 
 
 local SOUND_PROPERTIES_LIST = {
@@ -26,16 +28,16 @@ local SOUND_PROPERTIES_LIST = {
 
 function Sound.new(soundAsset)
 	local realSound = soundAsset:Clone()
-	local newSoundWrapper = setmetatable({
-		_Sound = realSound;
-		Stopped = realSound.Stopped;
-	}, Sound)
+	local newSoundWrapper = DeepObject.new()
+    
+    newSoundWrapper._Sound = realSound
+    newSoundWrapper.Stopped = realSound.Stopped
 	
 	for _, property in ipairs(SOUND_PROPERTIES_LIST) do
 		newSoundWrapper[property] = soundAsset[property]
 	end
 	
-	return newSoundWrapper
+	return setmetatable(newSoundWrapper, Sound)
 end
 
 

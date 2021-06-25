@@ -3,80 +3,75 @@
 -- 6.24.2021
 
 
+
 local Interface
+local DeepObject = require(script.Parent.DeepObject)
 local UIButton = {}
 UIButton.__index = UIButton
+setmetatable(UIButton, DeepObject)
 
 
 -- UIButton constructor
--- @param element <Frame>
+-- @param instance <Frame>
 -- @param container <UIContainer>
 -- @returns <UIButton>
-function UIButton.new(element, container)
+function UIButton.new(instance, container)
     Interface = Interface or UIButton.Services.Interface
 
-	local self = setmetatable({
-        Instance = element;
-        _Container = container;
-        _LastClick1 = 0;
-        _LastClick2 = 0;
-    }, UIButton)
+	local self = DeepObject.new()
 
-    self.Maid = self.Instancer:Make("Maid")
-    self:Bind()
+    self._LastClick1 = 0
+    self._LastClick2 = 0
+    self._ClickBox = instance:FindFirstChild("UIButton")
+        or instance:FindFirstChild("UIToggle")
+    self.Instance = instance
+    self.Container = container
 
-	return self
+    self:GetMaid()
+
+	return setmetatable(self, UIButton)
 end
 
 
 -- Binds events and gives them to a maid
 function UIButton:Bind()
-    self.MouseButton1Down = self.Instancer:Make("Signal")
-    self.MouseButton2Down = self.Instancer:Make("Signal")
+    self:AddSignal("MouseButton1Down")
+    self:AddSignal("MouseButton2Down")
 
-    self.MouseButton1Up = self.Instancer:Make("Signal")
-    self.MouseButton2Up = self.Instancer:Make("Signal")
+    self:AddSignal("MouseButton1Up")
+    self:AddSignal("MouseButton2Up")
 
-    self.MouseButton1Click = self.Instancer:Make("Signal")
-    self.MouseButton2Click = self.Instancer:Make("Signal")
+    self:AddSignal("MouseButton1Click")
+    self:AddSignal("MouseButton2Click")
 
-    self.MouseButton1DoubleClick = self.Instancer:Make("Signal")
-    self.MouseButton2DoubleClick = self.Instancer:Make("Signal")
+    self:AddSignal("MouseButton2DoubleClick")
+    self:AddSignal("MouseButton2DoubleClick")
 
-    self.Maid:GiveTask(self.MouseButton1Down)
-    self.Maid:GiveTask(self.MouseButton2Down)
-    self.Maid:GiveTask(self.MouseButton1Up)
-    self.Maid:GiveTask(self.MouseButton2Up)
-    self.Maid:GiveTask(self.MouseButton1Click)
-    self.Maid:GiveTask(self.MouseButton2Click)
-    self.Maid:GiveTask(self.MouseButton1DoubleClick)
-    self.Maid:GiveTask(self.MouseButton2DoubleClick)
-
-    self.Maid:GiveTask(self.Instance.UIButton.MouseButton1Down:Connect(function(...)
+    self.Maid:GiveTask(self._ClickBox.MouseButton1Down:Connect(function(...)
         if (not Interface:Obscured(self)) then
             self.MouseButton1Down:Fire(...)
         end
     end))
 
-    self.Maid:GiveTask(self.Instance.UIButton.MouseButton2Down:Connect(function(...)
+    self.Maid:GiveTask(self._ClickBox.MouseButton2Down:Connect(function(...)
         if (not Interface:Obscured(self)) then
             self.MouseButton2Down:Fire(...)
         end
     end))
 
-    self.Maid:GiveTask(self.Instance.UIButton.MouseButton1Up:Connect(function(...)
+    self.Maid:GiveTask(self._ClickBox.MouseButton1Up:Connect(function(...)
         if (not Interface:Obscured(self)) then
             self.MouseButton1Up:Fire(...)
         end
     end))
 
-    self.Maid:GiveTask(self.Instance.UIButton.MouseButton2Up:Connect(function(...)
+    self.Maid:GiveTask(self._ClickBox.MouseButton2Up:Connect(function(...)
         if (not Interface:Obscured(self)) then
             self.MouseButton2Up:Fire(...)
         end
     end))
 
-    self.Maid:GiveTask(self.Instance.UIButton.MouseButton1Click:Connect(function(...)
+    self.Maid:GiveTask(self._ClickBox.MouseButton1Click:Connect(function(...)
         if (not Interface:Obscured(self)) then
             local now = tick()
 
@@ -90,7 +85,7 @@ function UIButton:Bind()
         end
     end))
 
-    self.Maid:GiveTask(self.Instance.UIButton.MouseButton2Click:Connect(function(...)
+    self.Maid:GiveTask(self._ClickBox.MouseButton2Click:Connect(function(...)
         if (not Interface:Obscured(self)) then
             local now = tick()
 

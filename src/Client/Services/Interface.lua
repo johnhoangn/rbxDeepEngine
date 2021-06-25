@@ -39,7 +39,7 @@ local function BuildContainers()
     -- TODO: Custom container type constructor handling
     for _, element in ipairs(PlayerGui:WaitForChild("Screen"):GetChildren()) do
         if (element:IsA("Frame")) then
-            local container = Interface.Instancer:Make("UIContainer", element)
+            local container = Interface.Classes.UIContainer.new(element)
 
             assert(not OpenContainers:Contains(element.Name), "Duplicate container name " .. element.Name)
             assert(not AllContainers:Contains(element.Name), "Duplicate container name " .. element.Name)
@@ -53,36 +53,43 @@ local function BuildContainers()
                 element.Name,
                 container
             )
-            
+
             for _, elementDescendant in ipairs(element:GetChildren()) do
+                local newChild
+
                 if (elementDescendant:FindFirstChild("UIButton")) then
-                    container:AddChild(
-                        Interface.Instancer:Make(
-                            "UIButton",
-                            elementDescendant,
-                            container
-                        ), elementDescendant.Name
+                    newChild = Interface.Classes.UIButton.new(
+                        elementDescendant,
+                        container,
+                        nil
                     )
                 elseif (elementDescendant:FindFirstChild("UISlider")) then
-                    container:AddChild(
-                        Interface.Instancer:Make(
-                            "UISlider",
-                            elementDescendant,
-                            nil, -- Leave default value to a GUI Controller
-                            container
-                        ), elementDescendant.Name
+                    newChild = Interface.Classes.UISlider.new(
+                        elementDescendant,
+                        container,
+                        nil -- Leave default value to a GUI Controller
                     )
+                    
                 elseif (elementDescendant:FindFirstChild("UIToggle")) then
-                    container:AddChild(
-                        Interface.Instancer:Make(
-                            "UIToggle",
-                            elementDescendant,
-                            nil, -- Leave default value to a GUI Controller
-                            container
-                        ), elementDescendant.Name
+                    newChild = Interface.Classes.UIToggle.new(
+                        elementDescendant,
+                        container,
+                        nil -- Leave default value to a GUI Controller
                     )
+                else
+                    continue
                 end
+
+                container:AddChild(
+                    newChild,
+                    elementDescendant.Name
+                )
+
+                newChild:Bind()
             end
+
+            container:Bind()
+            container:GuaranteeBounds()
         end
     end
 end
@@ -153,13 +160,13 @@ function Interface:Obscured(element)
 
     local elementsHere = PlayerGui:GetGuiObjectsAtPosition(MouseInstance.X, MouseInstance.Y)
 
-	for _, thisElem in ipairs(elementsHere) do
-        if (not thisElem.Visible) then
+	for _, thIsAlem in ipairs(elementsHere) do
+        if (not thIsAlem.Visible) then
             continue
         end
 
         -- First visible element
-		if (thisElem == element.Instance or thisElem:IsDescendantOf(element.Instance)) then
+		if (thIsAlem == element.Instance or thIsAlem:IsDescendantOf(element.Instance)) then
 			return false
 		else
 			return true
@@ -204,9 +211,9 @@ function Interface:DragStop(element)
     element:DragStop()
     DraggingElement = nil
 
-    if (element:IsE("UIContainer")) then
+    if (element:IsA("UIContainer")) then
         print("Dropped a container")
-    elseif (element:IsE("UIButton")) then
+    elseif (element:IsA("UIButton")) then
         print("Dropped a button")
     end
 end
@@ -224,8 +231,8 @@ function Interface:Drag(element)
         Y = MouseInstance.Y;
     }
 
-    local maid = self.Instancer:Make("Maid")
-    local dragStopSignal = self.Instancer:Make("Signal")
+    local maid = self.Classes.Maid.new()
+    local dragStopSignal = self.Classes.Signal.new()
     local taskID = MetronomeService:BindToFrequency(60, function(dt)
         local deltaX = MouseInstance.X - mouseOrigin.X
         local deltaY = MouseInstance.Y - mouseOrigin.Y
@@ -302,9 +309,11 @@ function Interface:EngineInit()
     PlayerGui = self.LocalPlayer.PlayerGui
     MouseInstance = self.LocalPlayer:GetMouse()
 
-    OpenContainers = self.Instancer:Make("IndexedMap")
-    AllContainers = self.Instancer:Make("IndexedMap")
+    OpenContainers = self.Classes.IndexedMap.new()
+    AllContainers = self.Classes.IndexedMap.new()
     ActiveContainer = nil
+
+    self.DoubleClickWindow = 0.25
 end
 
 

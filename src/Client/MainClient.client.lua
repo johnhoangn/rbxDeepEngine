@@ -14,11 +14,17 @@ local Engine = {
 	Services = {};
 	Modules = {_Cache = CachedGeneralModules};
 	Enums = {};
+    Classes = {};
 	Blackboard = Blackboard;
-	
+
 	DebugLevel = 1;
-	
+
 	_ServiceName = "Deep Engine Client";
+}
+
+
+local mt = {
+    __index = Engine;
 }
 
 
@@ -28,9 +34,7 @@ function Engine:Link(module)
 	if (getmetatable(module) ~= nil) then
 		warn("Attempting to overwrite metatable, suppress with '_DEEPLINKS ~= nil' in table:", module)
 	end
-	setmetatable(module, {
-		__index = Engine;
-	})
+	setmetatable(module, mt)
 end
 
 -- Adds functionality to the Engine such as a Network service,
@@ -119,7 +123,7 @@ end
 -- @param numServices
 -- @returns completion Signal
 local function StartServices(numServices)
-	local completed = Engine.Instancer:Make("Signal")
+	local completed = Engine.Classes.Signal.new()
 	
 	for _, service in pairs(Engine.Services) do
 		Engine.Modules.ThreadUtil.Spawn(function()
@@ -197,6 +201,33 @@ setmetatable(Engine.Enums, {
 		
 		return service
 	end,
+})
+
+
+-- Class loader
+setmetatable(Engine.Classes, {
+    __index = function(tbl, class)
+        local cached = rawget(tbl, class)
+
+        if (cached ~= nil) then
+            return cached
+        else
+            local classModule = ClientFolder.Classes:FindFirstChild(class)
+
+            assert(classModule ~= nil, "Invalid class " .. class)
+
+            classModule = require(classModule)
+            classModule.ClassName = class
+
+            if (class == "DeepObject") then
+                Engine:Link(classModule)
+            end
+
+            rawset(tbl, class, classModule)
+
+            return classModule
+        end
+    end
 })
 
 

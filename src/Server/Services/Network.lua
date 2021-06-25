@@ -198,7 +198,7 @@ end
 -- @param requestType Enum.NetRequestType
 -- @param ... request arguments
 function Network:Pack(protocol, requestType, ...)
-	return self.Instancer:Make("NetPacket", protocol, requestType, ...)
+	return self.Classes.NetPacket.new(protocol, requestType, ...)
 end
 
 
@@ -208,7 +208,7 @@ end
 -- @param ... request args
 -- @return fulfilled signal
 function Network:RequestClient(client, requestType, ...)
-	local fulfilled = self.Instancer:Make("Signal")
+	local fulfilled = self.Classes.Signal.new()
 	
 	self:FireClient(
 		client, 
@@ -332,8 +332,8 @@ function Network:EngineInit()
 	TableUtil = self.Modules.TableUtil
 	ThreadUtil = self.Modules.ThreadUtil
 	
-	AwaitingResponses = self.Instancer:Make("IndexedMap")
-	RequestHandlers = self.Instancer:Make("IndexedMap")
+	AwaitingResponses = self.Classes.IndexedMap.new()
+	RequestHandlers = self.Classes.IndexedMap.new()
 	
 	self.NetProtocol = NetProtocol
 	self.NetRequestType = NetRequestType

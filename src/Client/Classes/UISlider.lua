@@ -6,9 +6,10 @@
 
 local Interface
 local Mouse
+local DeepObject = require(script.Parent.DeepObject)
 local UISlider = {}
 UISlider.__index = UISlider
-
+setmetatable(UISlider, DeepObject)
 
 
 -- Determines where the mouse is relative to the slider
@@ -24,30 +25,23 @@ end
 
 
 -- UISlider constructor
--- @param element <Frame>
+-- @param instance <Frame>
 -- @param container <UIContainer>
 -- @param initialiValue == 0.5, <Float> [0, 1]
 -- @return <UISlider>
-function UISlider.new(element, container, initialValue)
+function UISlider.new(instance, container, initialValue)
     Interface = Interface or UISlider.Services.Interface
     Mouse = Mouse or UISlider.LocalPlayer:GetMouse()
 
-	local self = setmetatable({
-        Instance = element;
-        _Container = container;
-        Value = initialValue or 0.5;
-    }, UISlider)
+	local self = DeepObject.new()
 
-    self.Maid = self.Instancer:Make("Maid")
-    self.Sliding = self.Instancer:Make("Signal")
-    self.Slid = self.Instancer:Make("Signal")
+    self._Container = container
+    self.Instance = instance
+    self.Value = initialValue or 0.5
 
-    self.Maid:GiveTask(self.Sliding)
-    self.Maid:GiveTask(self.Slid)
+    self:GetMaid()
 
-    self:Bind()
-
-	return self
+	return setmetatable(self, UISlider)
 end
 
 
@@ -59,34 +53,44 @@ end
 
 -- Hooks up events
 function UISlider:Bind()
-    self.Maid:GiveTask(
-        self.Instance.UISlider.MouseButton1Down:Connect(function()
-            if (not Interface:Obscured(self)) then
-                self.Moving = Mouse.Move:Connect(function()
-                    local ratio = SliderValue(self)
+    self:AddSignal("Sliding")
+    self:AddSignal("Slid")
 
-                    self.Value = ratio
-                    self.Sliding:Fire(ratio)
-                end)
+    self._DragStart = self.Instance.UISlider.MouseButton1Down:Connect(function()
+        if (not Interface:Obscured(self)) then
+            self._Moving = Mouse.Move:Connect(function()
+                local ratio = SliderValue(self)
 
-                self.Release = Mouse.Button1Up:Connect(function()
-                    self.Moving:Disconnect()
-                    self.Slid:Fire(SliderValue(self))
-                end)
-            end
-        end)
-    )
+                self.Value = ratio
+                self.Sliding:Fire(ratio)
+            end)
+
+            self._Release = Mouse.Button1Up:Connect(function() warn("RELEASE")
+                self._Moving:Disconnect()
+                self._Release:Disconnect()
+                self._Moving = nil
+                self._Release = nil
+                self.Slid:Fire(SliderValue(self))
+            end)
+        end
+    end)
 end
 
 
 -- Disconnects events
 function UISlider:Unbind()
     self.Maid:DoCleaning()
-    if (self.Moving) then
-        self.Moving:Disconnect()
-        self.Moving = nil
-        self.Release:Disconnect()
-        self.Release = nil
+
+    if (self._DragStart ~= nil) then
+        self._DragStart:Disconnect()
+        self._DragStart = nil
+        
+        if (self.Moving ~= nil) then
+            self.Moving:Disconnect()
+            self.Moving = nil
+            self.Release:Disconnect()
+            self.Release = nil
+        end
     end
 end
 

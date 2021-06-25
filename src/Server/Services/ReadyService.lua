@@ -37,7 +37,7 @@ function ReadyService:WaitReady(user, timeout)
 	if (self:IsReady(user)) then
 		return true
 	else
-		local readiedSignal = self.Instancer:Make("Signal")
+		local readiedSignal = self.Classes.Signal.new()
 
 		self.UserReadied:Connect(function(readiedUser)
 			if (readiedUser == user) then
@@ -68,9 +68,9 @@ function ReadyService:EngineInit()
 	Players = self.RBXServices.Players
 	Network = self.Services.Network
 	
-	Readied = self.Instancer:Make("LinkedList")
+	Readied = self.Classes.LinkedList.new()
 	
-	self.UserReadied = self.Instancer:Make("Signal")
+	self.UserReadied = self.Classes.Signal.new()
 end
 
 

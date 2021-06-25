@@ -172,7 +172,7 @@ end
 -- @param ... request arguments
 -- @return fulfillment Signal
 function Network:RequestServer(requestType, ...)
-	local fulfillmentSignal = self.Instancer:Make("Signal")
+	local fulfillmentSignal = self.Classes.Signal.new()
 	local packet = self:PackRequest(
 		NetRequestType.Quick, 
 		requestType, 
@@ -194,7 +194,7 @@ end
 -- @param requestType Enum.NetRequestType
 -- @param ... request arguments
 function Network:Pack(protocol, requestType, ...)
-	return self.Instancer:Make("NetPacket", protocol, requestType, ...)
+	return self.Classes.NetPacket.new(protocol, requestType, ...)
 end
 
 
@@ -261,11 +261,11 @@ function Network:EngineInit()
 	TableUtil = self.Modules.TableUtil
 	ThreadUtil = self.Modules.ThreadUtil
 	
-	AwaitingResponses = self.Instancer:Make("IndexedMap")
-	RequestHandlers = self.Instancer:Make("IndexedMap")
+	AwaitingResponses = self.Classes.IndexedMap.new()
+	RequestHandlers = self.Classes.IndexedMap.new()
 	PendingRequests = {}
-	SendQueue = self.Instancer:Make("Queue")
-	
+	SendQueue = self.Classes.Queue.new()
+
 	self.NetProtocol = NetProtocol
 	self.NetRequestType = NetRequestType
 	self.PacketStatus = PacketStatus

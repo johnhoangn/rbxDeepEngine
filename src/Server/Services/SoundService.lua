@@ -88,7 +88,7 @@ function SoundService:EngineInit()
 	Players = self.RBXServices.Players
 	HttpService = self.RBXServices.HttpService
 
-	ActiveSounds = self.Instancer:Make("IndexedMap")
+	ActiveSounds = self.Classes.IndexedMap.new()
 end
 
 

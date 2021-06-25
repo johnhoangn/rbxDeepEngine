@@ -67,10 +67,7 @@ function EffectService:Make(baseID, effectUID, ...)
 		effect = cache:Dequeue()
 		
 	else
-		effect = self.Instancer:Make(
-			"Effect", 
-			AssetService:GetAsset(baseID)
-		)
+		effect = self.Classes.Effect.new(AssetService:GetAsset(baseID))
 		
 		effect.OnStop:Connect(function()
 			-- Remove from active list
@@ -81,7 +78,7 @@ function EffectService:Make(baseID, effectUID, ...)
 
 			-- Create a effect-type queue if needed
 			if (not EffectCaches:Contains(baseID)) then
-				EffectCaches:Add(baseID, self.Instancer:Make("Queue"))
+				EffectCaches:Add(baseID, self.Classes.Queue.new())
 			end
 			
 			-- Insert this effect into the appropriate queue
@@ -127,8 +124,8 @@ function EffectService:EngineInit()
 	AssetService = self.Services.AssetService
 	HttpService = self.RBXServices.HttpService
 	
-	ActiveEffects = self.Instancer:Make("IndexedMap")
-	EffectCaches = self.Instancer:Make("IndexedMap")
+	ActiveEffects = self.Classes.IndexedMap.new()
+	EffectCaches = self.Classes.IndexedMap.new()
 end
 
 

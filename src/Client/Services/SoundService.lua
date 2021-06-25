@@ -88,19 +88,20 @@ end
 -- @return sound
 function SoundService:Make(soundClass, baseID, soundID, propertiesTable)
 	local soundAsset = AssetService:GetAsset(baseID)
-	local sound = self.Instancer:Make("Sound", soundAsset.Sound)
-	local soundID = soundID or HttpService:GenerateGUID()
-	
+	local sound = self.Instancer.Sound.new(soundAsset.Sound)
+
+    soundID = soundID or HttpService:GenerateGUID()
+
 	if (propertiesTable ~= nil) then
 		sound:Modify(sound, propertiesTable)
 	else
 		sound.Parent = script
 	end
-	
+
 	-- We need to call apply since it depends on our current volume multipliers
 	sound:Apply(self:GetSoundClassVolume(soundClass))
 	ActiveSounds[soundClass]:Add(soundID, sound)
-	
+
 	return sound
 end
 
@@ -158,7 +159,7 @@ function SoundService:EngineInit()
 	VolumeMultipliers = {}
 	
 	for _, soundClass in pairs(SoundClass) do
-		ActiveSounds[soundClass] = self.Instancer:Make("IndexedMap")
+		ActiveSounds[soundClass] = self.Classes.IndexedMap.new()
 		VolumeMultipliers[soundClass] = 0.75 -- TODO: Default to user defined settings
 	end
 	

@@ -11,31 +11,35 @@
 
 
 
+local DeepObject = require(script.Parent.DeepObject)
 local Effect = {}
 Effect.__index = Effect
+setmetatable(Effect, DeepObject)
 
 
 function Effect.new(effectAsset)
 	local effectModule = require(effectAsset.EffectModule)
 	local baseID = effectAsset.Folder.Parent.Name .. effectAsset.Folder.Name
-	
+
 	-- I *really* don't trust myself to remember all of these methods when creating FX
 	assert(typeof(effectModule.Play) == "function", "Missing or Invalid :Play() effect method: " .. baseID)
 	assert(typeof(effectModule.Change) == "function", "Missing or Invalid :Change() effect method: " .. baseID)
 	assert(typeof(effectModule.Stop) == "function", "Missing or Invalid :Stop() effect method: " .. baseID)
 	assert(typeof(effectModule.Reset) == "function", "Missing or Invalid :Reset() effect method: " .. baseID)
 	assert(typeof(effectModule.Destroy) == "function", "Missing or Invalid :Destroy() effect method: " .. baseID)
-	
-	return setmetatable({
-		BaseID = baseID;
-		Model = effectAsset.Model:Clone();
-		Module = effectModule;
-		
-		OnPlay = Effect.Instancer:Make("Signal");
-		OnStop = Effect.Instancer:Make("Signal");
-		
-		State = Effect.Enums.EffectState.Ready;
-	}, Effect)
+
+    local self = DeepObject.new()
+
+    self.BaseID = baseID
+    self.Model = effectAsset.Model:Clone()
+    self.Module = effectModule
+    
+    self:AddSignal("OnPlay")
+    self:AddSignal("OnStop")
+    
+    self.State = Effect.Enums.EffectState.Ready
+
+	return setmetatable(self, Effect)
 end
 
 

@@ -5,29 +5,26 @@
 
 
 local Interface
+local DeepObject = require(script.Parent.DeepObject)
 local UIContainer = {}
 UIContainer.__index = UIContainer
-
+setmetatable(UIContainer, DeepObject)
 
 
 -- UIContainer constructor, optional x and y coordinates to initialize
 -- @param instance, the Frame this container wraps
--- @param x == instance.AbsolutePosition.X <Float>
--- @param y == instance.AbsolutePosition.Y <Float>
-function UIContainer.new(instance, x, y)
+function UIContainer.new(instance)
     Interface = Interface or UIContainer.Services.Interface
 
-    local self = setmetatable({
-        Instance = instance;
-        Anchored = instance:FindFirstChild("Dragger") == nil;
-        _Children = {};
-    }, UIContainer)
+    local self = DeepObject.new()
 
-    self.Maid = self.Instancer:Make("Maid")
-    self:Bind()
-    self:GuaranteeBounds()
+    self._Children = {}
+    self.Instance = instance
+    self.Anchored = instance:FindFirstChild("Dragger") == nil
 
-	return self
+    self:GetMaid()
+
+	return setmetatable(self, UIContainer)
 end
 
 

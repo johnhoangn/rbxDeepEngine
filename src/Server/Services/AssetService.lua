@@ -155,7 +155,7 @@ function AssetService:EngineInit()
 	
 	AssetsRoot = self.Root.Assets
 	
-	AssetCache = self.Instancer:Make("IndexedMap")
+	AssetCache = self.Classes.IndexedMap.new()
 	
 	InitReverseClassNames()
 	HexifyAssets()
