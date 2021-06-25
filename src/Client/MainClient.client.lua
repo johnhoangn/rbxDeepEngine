@@ -112,7 +112,6 @@ end
 -- Initializes services
 local function InitServices(queue)
 	Engine:ExtendEngine("RBXServices", Engine.Modules.RBXServices)
-	Engine:ExtendEngine("Instancer", Engine.Modules.Instancer)
 	for _, service in ipairs(queue) do
 		service:EngineInit()
 	end
