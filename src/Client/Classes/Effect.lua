@@ -1,12 +1,12 @@
 --[[
-	
-	Effect class, improves upon Abyss' FX system since effectModules don't get cloned,
-	thus fully taking advantage of Roblox's inbuilt module caching
-	
-	Further improvements include re-using cached effect instances
-	
-	When an effect finishes its lifecycle, :Reset() is called and it gets cached by a manager 
-	
+
+    Effect class, improves upon Abyss' FX system since effectModules don't get cloned,
+    thus fully taking advantage of Roblox's inbuilt module caching
+
+    Further improvements include re-using cached effect instances
+
+    When an effect finishes its lifecycle, :Reset() is called and it gets cached by a manager 
+
 --]]
 
 
@@ -44,22 +44,22 @@ end
 
 
 function Effect:Play(...)
-	if (self.State ~= self.Enums.EffectState.Stopped) then
-		self.State = self.Enums.EffectState.Playing
-		self.Module:Play(...)
-		self:Stop(...)
-	else
-		warn("Attempt to play non-ready effect ", self)
-	end
+    if (self.State ~= self.Enums.EffectState.Stopped) then
+        self.State = self.Enums.EffectState.Playing
+        self.Module:Play(...)
+        self:Stop(...)
+    else
+        warn("Attempt to play non-ready effect ", self)
+    end
 end
 
 
 function Effect:Change(...)
-	if (self.State ~= self.Enums.EffectState.Stopped) then
-		self.Module:Change(...)
-	else
-		warn("Attempt to change stopped effect ", self)
-	end
+    if (self.State ~= self.Enums.EffectState.Stopped) then
+        self.Module:Change(...)
+    else
+        warn("Attempt to change stopped effect ", self)
+    end
 end
 
 
