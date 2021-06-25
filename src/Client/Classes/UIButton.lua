@@ -17,7 +17,7 @@ function UIButton.new(element, container)
 
 	local self = setmetatable({
         Instance = element;
-        Container = container;
+        _Container = container;
         _LastClick1 = 0;
         _LastClick2 = 0;
     }, UIButton)
@@ -103,6 +103,13 @@ function UIButton:Bind()
             self._LastClick2 = now
         end
     end))
+end
+
+
+-- Retrieves the container holding this button
+-- @returns <UIContainer>
+function UIButton:GetContainer()
+    return self._Container
 end
 
 
