@@ -44,7 +44,7 @@ function UIButton:Bind()
     self:AddSignal("MouseButton1Click")
     self:AddSignal("MouseButton2Click")
 
-    self:AddSignal("MouseButton2DoubleClick")
+    self:AddSignal("MouseButton1DoubleClick")
     self:AddSignal("MouseButton2DoubleClick")
 
     self.Maid:GiveTask(self._ClickBox.MouseButton1Down:Connect(function(...)
