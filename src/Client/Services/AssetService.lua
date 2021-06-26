@@ -99,7 +99,7 @@ function AssetService:GetAsset(baseID)
 		return cached
 		
 	elseif (DownloadList:Contains(baseID)) then
-		local downloaded = self.Instancer:Make("Signal")
+		local downloaded = self.Classes.Signal.new()
 		local waitForAsset
 			
 		waitForAsset = self.Downloaded:Connect(function(downloadedID, asset)
@@ -186,11 +186,11 @@ function AssetService:EngineInit()
 	
 	ThreadUtil = self.Modules.ThreadUtil
 	
-	AssetCache = self.Instancer:Make("IndexedMap")
-	DownloadList = self.Instancer:Make("IndexedMap")
+	AssetCache = self.Classes.IndexedMap.new()
+	DownloadList = self.Classes.IndexedMap.new()
 	
-	self.Preloaded = self.Instancer:Make("Signal")
-	self.Downloaded = self.Instancer:Make("Signal")
+	self.Preloaded = self.Classes.Signal.new()
+	self.Downloaded = self.Classes.Signal.new()
 end
 
 
