@@ -41,6 +41,9 @@ function UISlider.new(instance, container, initialValue)
 
     self:GetMaid()
 
+    self:AddSignal("Sliding")
+    self:AddSignal("Slid")
+
 	return setmetatable(self, UISlider)
 end
 
@@ -53,19 +56,20 @@ end
 
 -- Hooks up events
 function UISlider:Bind()
-    self:AddSignal("Sliding")
-    self:AddSignal("Slid")
-
     self._DragStart = self.Instance.UISlider.MouseButton1Down:Connect(function()
         if (not Interface:Obscured(self)) then
-            self._Moving = Mouse.Move:Connect(function()
-                local ratio = SliderValue(self)
+            local ratio = SliderValue(self)
 
+            self.Value = ratio
+            self.Sliding:Fire(ratio)
+
+            self._Moving = Mouse.Move:Connect(function()
+                ratio = SliderValue(self)
                 self.Value = ratio
                 self.Sliding:Fire(ratio)
             end)
 
-            self._Release = Mouse.Button1Up:Connect(function() warn("RELEASE")
+            self._Release = Mouse.Button1Up:Connect(function()
                 self._Moving:Disconnect()
                 self._Release:Disconnect()
                 self._Moving = nil
@@ -85,11 +89,11 @@ function UISlider:Unbind()
         self._DragStart:Disconnect()
         self._DragStart = nil
         
-        if (self.Moving ~= nil) then
-            self.Moving:Disconnect()
-            self.Moving = nil
-            self.Release:Disconnect()
-            self.Release = nil
+        if (self._Moving ~= nil) then
+            self._Moving:Disconnect()
+            self._Release:Disconnect()
+            self._Moving = nil
+            self._Release = nil
         end
     end
 end
