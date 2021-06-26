@@ -23,6 +23,8 @@ function UIContainer.new(instance)
     self.Anchored = instance:FindFirstChild("Dragger") == nil
 
     self:GetMaid()
+    self:AddSignal("Dragged")
+    self:AddSignal("Dropped")
 
 	return setmetatable(self, UIContainer)
 end
@@ -45,12 +47,13 @@ end
 function UIContainer:DragStart()
     assert(not self.Anchored, "Attempt to drag anchored UIContainer")
     Interface:Drag(self)
+    self.Dragged:Fire()
 end
 
 
 -- Called when the container is dropped from a drag
 function UIContainer:DragStop()
-
+    self.Dropped:Fire(Interface:GetActiveContainer(), Interface:GetActiveCell())
 end
 
 
