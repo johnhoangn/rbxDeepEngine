@@ -6,7 +6,10 @@
 -- This manager creates a system similar to modern operating systems' "active" window functionality
 --  allowing multiple draggable windows (containers) to be laid on top of eachother and whenever
 --  a lower container or its children are interacted with, the entire container will be brought
---  to the front, and set as active
+--  to the front
+
+-- An "Active" container or cell, not to be confused with the "active" windows from the
+--  operating system analogy above, is the topmost container or cell that currently houses the mouse
 
 -- This manager also handles draggable "cells" which are common in modern video games,
 --  enabling the developer to implement "drag-and-drop" systems with relative ease
@@ -69,7 +72,7 @@ local function BuildContainers()
                         container,
                         nil -- Leave default value to a GUI Controller
                     )
-                    
+
                 elseif (elementDescendant:FindFirstChild("UIToggle")) then
                     newChild = Interface.Classes.UIToggle.new(
                         elementDescendant,
@@ -208,14 +211,15 @@ end
 function Interface:DragStop(element)
     assert(DraggingElement == element, "Dropped element was not the active dragging element or multiple drag")
 
-    element:DragStop()
     DraggingElement = nil
 
     if (element:IsA("UIContainer")) then
         print("Dropped a container")
-    elseif (element:IsA("UIButton")) then
-        print("Dropped a button")
+    elseif (element:IsA("UICell")) then
+        print("Dropped a cell")
     end
+
+    self.CellDropped:Fire(element, ActiveContainer, ActiveCell)
 end
 
 
@@ -250,7 +254,6 @@ function Interface:Drag(element)
         MetronomeService:Unbind(taskID)
     end)
     maid:GiveTask(
-        -- Potentially move to an input manager
         UserInputService.InputEnded:Connect(function(iObject)
             if (iObject.UserInputType == Enum.UserInputType.MouseButton1) then
                 dragStopSignal:Fire()
@@ -313,7 +316,10 @@ function Interface:EngineInit()
     AllContainers = self.Classes.IndexedMap.new()
     ActiveContainer = nil
 
-    self.DoubleClickWindow = 0.25
+    self.DoubleClickWindow = 0.25 -- seconds
+    self.DragThresholdSq = 10 ^ 2 -- px, squared
+
+    self.CellDropped = self.Classes.Signal.new()
 end
 
 
