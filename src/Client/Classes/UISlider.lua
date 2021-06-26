@@ -4,7 +4,7 @@
 
 
 
-local Interface
+local Interface, UserInputService
 local Mouse
 local DeepObject = require(script.Parent.DeepObject)
 local UISlider = {}
@@ -31,6 +31,7 @@ end
 -- @return <UISlider>
 function UISlider.new(instance, container, initialValue)
     Interface = Interface or UISlider.Services.Interface
+    UserInputService = UserInputService or UISlider.RBXServices.UserInputService
     Mouse = Mouse or UISlider.LocalPlayer:GetMouse()
 
 	local self = DeepObject.new()
@@ -56,7 +57,7 @@ end
 
 -- Hooks up events
 function UISlider:Bind()
-    self._DragStart = self.Instance.UISlider.MouseButton1Down:Connect(function()
+    self:GetMaid():GiveTask(self.Instance.UISlider.MouseButton1Down:Connect(function()
         if (not Interface:Obscured(self)) then
             local ratio = SliderValue(self)
 
@@ -69,15 +70,17 @@ function UISlider:Bind()
                 self.Sliding:Fire(ratio)
             end)
 
-            self._Release = Mouse.Button1Up:Connect(function()
-                self._Moving:Disconnect()
-                self._Release:Disconnect()
-                self._Moving = nil
-                self._Release = nil
-                self.Slid:Fire(SliderValue(self))
+            self._Release = UserInputService.InputEnded:Connect(function(iObject)
+                if (iObject.UserInputType == Enum.UserInputType.MouseButton1) then
+                    self._Moving:Disconnect()
+                    self._Release:Disconnect()
+                    self._Moving = nil
+                    self._Release = nil
+                    self.Slid:Fire(SliderValue(self))
+                end
             end)
         end
-    end)
+    end))
 end
 
 
@@ -85,16 +88,11 @@ end
 function UISlider:Unbind()
     self.Maid:DoCleaning()
 
-    if (self._DragStart ~= nil) then
-        self._DragStart:Disconnect()
-        self._DragStart = nil
-        
-        if (self._Moving ~= nil) then
-            self._Moving:Disconnect()
-            self._Release:Disconnect()
-            self._Moving = nil
-            self._Release = nil
-        end
+    if (self._Moving ~= nil) then
+        self._Moving:Disconnect()
+        self._Release:Disconnect()
+        self._Moving = nil
+        self._Release = nil
     end
 end
 
