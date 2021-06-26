@@ -29,12 +29,6 @@ function UIButton.new(instance, container)
 
     self:GetMaid()
 
-	return setmetatable(self, UIButton)
-end
-
-
--- Binds events and gives them to a maid
-function UIButton:Bind()
     self:AddSignal("MouseButton1Down")
     self:AddSignal("MouseButton2Down")
 
@@ -47,6 +41,12 @@ function UIButton:Bind()
     self:AddSignal("MouseButton1DoubleClick")
     self:AddSignal("MouseButton2DoubleClick")
 
+	return setmetatable(self, UIButton)
+end
+
+
+-- Binds events and gives them to a maid
+function UIButton:Bind()
     self.Maid:GiveTask(self._ClickBox.MouseButton1Down:Connect(function(...)
         if (not Interface:Obscured(self)) then
             self.MouseButton1Down:Fire(...)
