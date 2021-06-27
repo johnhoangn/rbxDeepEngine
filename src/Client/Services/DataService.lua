@@ -34,8 +34,8 @@ local DataCache
 
 
 -- Receives, caches our data, and disconnects the initial data stream handler
--- @param dt
--- @param data
+-- @param dt <float>
+-- @param data <table>
 local function ReceiveData(dt, data)
 	DataCache = data
 	-- We don't need this anymore
@@ -44,14 +44,13 @@ end
 
 
 -- Receives changes to a certain directory
--- @param dt
--- @param routeString to the directory
--- @param changeDictionary
+-- @param dt <float>
+-- @param routeString to the directory <string>
+-- @param changeDictionary <table>
 local function ReceiveChange(dt, routeString, changeDictionary)
 	local root = DataCache
 	
 	for subDir in string.gmatch(routeString, "%w+") do
-
 		root = root[subDir]
 	end
 	
@@ -67,6 +66,7 @@ end
 
 
 -- Cache getter
+-- @returns <table>
 function DataService:GetCache()
 	return DataCache
 end

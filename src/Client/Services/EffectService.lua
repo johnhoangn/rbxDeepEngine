@@ -22,10 +22,10 @@ local EffectCaches
 
 
 -- Creates a new effect via server notice
--- @param dt to reach client
--- @param pre_dt to reach server (from original client, if applicable, DEFAULT == 0)
--- @param baseID
--- @param effectUID
+-- @param dt <float> to reach client
+-- @param pre_dt <float> to reach server (from original client, if applicable, DEFAULT == 0)
+-- @param baseID <string>
+-- @param effectUID <string>
 -- @param ... effect args
 local function HandleServerCreate(dt, pre_dt, baseID, effectUID, ...)
 	-- Add the total network delay and provide as standard first argument to the effect
@@ -34,9 +34,9 @@ end
 
 
 -- Changes an effect via server notice
--- @param dt to reach client
--- @param pre_dt to reach server (from original client, if applicable, DEFAULT == 0)
--- @param effectUID
+-- @param dt <float> to reach client
+-- @param pre_dt <float> to reach server (from original client, if applicable, DEFAULT == 0)
+-- @param effectUID <string>
 -- @param ... change args
 local function HandleServerChange(dt, pre_dt, effectUID, ...)
 	EffectService:ChangeEffect(effectUID, pre_dt + dt, ...)
@@ -44,9 +44,9 @@ end
 
 
 -- Remove an effect via server notice
--- @param dt to reach client
--- @param pre_dt to reach server (from original client, if applicable, DEFAULT == 0)
--- @param effectUID
+-- @param dt <float> to reach client
+-- @param pre_dt <float> to reach server (from original client, if applicable, DEFAULT == 0)
+-- @param effectUID <string>
 -- @param ... remove args
 local function HandleServerStop(dt, pre_dt, effectUID, ...)
 	EffectService:StopEffect(effectUID, pre_dt + dt, ...)
@@ -54,10 +54,10 @@ end
 
 
 -- Creates a new effect
--- @param baseID
--- @param effectUID, auto generated default
+-- @param baseID <string>
+-- @param effectUID <string>, auto generated default
 -- @param ... effect args
--- @return uid of effect
+-- @returns <string> uid of effect
 function EffectService:Make(baseID, effectUID, ...)
 	local uid = effectUID or HttpService:GenerateGUID()
 	local cache = EffectCaches:Get(baseID)
@@ -96,7 +96,7 @@ end
 
 
 -- Changes an effect
--- @param effectUID
+-- @param effectUID <string>
 -- @param ... change args
 function EffectService:ChangeEffect(effectUID, ...)
 	local effect = ActiveEffects:Get(effectUID)
@@ -108,7 +108,7 @@ end
 
 
 -- Stops an effect
--- @param effectUID
+-- @param effectUID <string>
 -- @param ... stop args
 function EffectService:StopEffect(effectUID, ...)
 	local effect = ActiveEffects:Get(effectUID)

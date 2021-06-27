@@ -5,6 +5,8 @@ local pCache, caches, lended
 local numCaches, cacheSize
 
 
+-- Retrieves a part instance from the cache
+-- @returns <BasePart>
 function cacheManager:GetPart()
 	local i, selectedCache, part
 
@@ -23,6 +25,8 @@ function cacheManager:GetPart()
 end
 
 
+-- Returns a part instance to the cache
+-- @param part <BasePart>
 function cacheManager:Cache(part)
 	assert(lended[part], 'Attempt to cache non partcache instance')
 
@@ -31,6 +35,8 @@ function cacheManager:Cache(part)
 end
 
 
+-- CONFIG
+-- Multiple caches so each list is shorter
 numCaches = 2
 cacheSize = 200
 
@@ -42,7 +48,7 @@ lended = {}
 for i = 1, numCaches do
 	caches[i] = {
 		heap = pCache.new(
-			Instance.new("Part"), 
+			Instance.new("Part"),
 			cacheSize, 
 			workspace.Debris.PartCacheInstances
 		);

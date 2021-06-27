@@ -52,7 +52,7 @@ local AssetCache, DownloadList
 
 
 -- Converts a folder and its sub-folders into a table
--- @param root
+-- @param root <Folder>
 local function CacheAssetHelper(root)
 	local tbl = {}
 	
@@ -89,8 +89,8 @@ end
 
 
 -- Retrieves a cached asset or downloads it via baseID
--- @param baseID of the form XXYYYY, XX: ClassID, YYYY: AssetID
--- @return the indexed asset
+-- @param baseID <string> of the form XXYYYY, XX: ClassID, YYYY: AssetID
+-- @return the indexed asset <table>
 function AssetService:GetAsset(baseID)
 	local cached = AssetCache:Get(baseID)
 	
@@ -149,15 +149,15 @@ end
 
 
 -- Sets an asset to respect purges or not
--- @param baseID
--- @param boolean
-function AssetService:SetPurge(baseID, boolean)
-	self:GetAsset(baseID).IgnorePurge = not boolean or nil
+-- @param baseID <string>
+-- @param value <boolean>
+function AssetService:SetPurge(baseID, value)
+	self:GetAsset(baseID).IgnorePurge = not value or nil
 end
 
 
 -- Clears the cache of all assets that haven't been used recently
--- @param tolerance == 0, time in seconds since an asset was used
+-- @param tolerance == 0 <float>, time in seconds since an asset was used
 function AssetService:PurgeCache(tolerance)
 	tolerance = tolerance or 0
 	
@@ -176,6 +176,7 @@ function AssetService:PurgeCache(tolerance)
 end
 
 
+-- Checks if the services is done preloading
 function AssetService:IsLoaded()
 	return self.Preloaded == nil
 end
