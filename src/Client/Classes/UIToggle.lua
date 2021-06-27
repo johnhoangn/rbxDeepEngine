@@ -27,6 +27,8 @@ function UIToggle.new(instance, container, initialValue)
     self.Unbind = nil
     self.Destroy = nil
 
+    self:AddSignal("Toggled")
+
     return setmetatable(self, UIToggle)
 end
 
@@ -34,7 +36,6 @@ end
 -- Sets up events
 function UIToggle:Bind()
     self:SUPER_Bind()
-    self:AddSignal("Toggled")
 
     self.Maid:GiveTask(
         self.MouseButton1Click:Connect(function()
