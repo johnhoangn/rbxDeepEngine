@@ -37,7 +37,7 @@ local AssetCache, AssetsRoot
 
 
 -- Converts a folder and its sub-folders into a table
--- @param root
+-- @param root <Folder>
 local function CacheAssetHelper(root)
 	local tbl = {}
 	
@@ -83,7 +83,7 @@ end
 
 
 -- Retrieves the actual name of a class
--- @param classID, HEX
+-- @param classID <string>, HEX
 local function GetClassName(classID)
 	return ClassNames[tonumber(classID, 16)]
 end
@@ -97,9 +97,9 @@ end
 
 
 -- Streams an asset to a client
--- @param client
--- @param deltaTime the request took to get here
--- @param baseID
+-- @param client <Player>
+-- @param deltaTime <float> the request took to get here
+-- @param baseID <string>
 local function StreamAsset(client, deltaTime, baseID)
 	local streamID = HttpService:GenerateGUID()
 	local asset = AssetService:GetAsset(baseID)
@@ -118,8 +118,8 @@ end
 
 
 -- Retrieves an asset by baseID
--- @param baseID, XXYYYY
--- @return asset
+-- @param baseID <string>, XXYYYY
+-- @returns <table> asset
 function AssetService:GetAsset(baseID)
 	local cached = AssetCache:Get(baseID)
 	

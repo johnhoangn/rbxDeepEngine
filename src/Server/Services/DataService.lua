@@ -41,7 +41,7 @@ local GameProfileStore
 
 
 -- Loads or creates the client's profile
--- @param client
+-- @param client <Player>
 local function HandleClientJoin(client)
 	local profile = GameProfileStore:LoadProfileAsync(
 		"Player_" .. client.UserId,
@@ -82,7 +82,7 @@ end
 
 
 -- Removes a client's profile upon leave
--- @param client
+-- @param client <Player>
 local function HandleClientLeave(client)
 	local profile = ActiveProfiles[client]
 	if profile ~= nil then
@@ -92,7 +92,7 @@ end
 
 
 -- Retrieves the data table for a client
--- @param client
+-- @param client <Player>
 function DataService:GetData(client)
     local profile = ActiveProfiles[client]
 	return profile ~= nil and profile.Data or nil
@@ -100,10 +100,10 @@ end
 
 
 -- Changes values defined under the Data table located at routeString
--- @param client
--- @param routeString
--- @param changeDictionary { key1 = value1; key2 = value2; }
--- @param doNotReplicate == false, withholds updating client
+-- @param client <Player>
+-- @param routeString <string>
+-- @param changeDictionary <table> { key1 = value1; key2 = value2; }
+-- @param doNotReplicate <boolean> == false, withholds updating client
 function DataService:SetKeys(client, routeString, changeDictionary, doNotReplicate)
 	local root = self:GetData(client)
 	
@@ -146,10 +146,10 @@ end
 
 
 -- Changes a single value defined at key under routeString
--- @param routeString
--- @param key
--- @param value
--- @param doNotReplicate == false
+-- @param routeString <string>
+-- @param key <string>
+-- @param value <any>
+-- @param doNotReplicate <boolean> == false
 function DataService:SetKey(client, routeString, key, value, doNotReplicate)
 	self:SetKeys(
 		client, 
@@ -163,10 +163,10 @@ end
 
 
 -- Macro to remove a key via NIL_TOKEN
--- @param client
--- @param routeString
--- @param key
--- @param doNotReplicate == false
+-- @param client <Player>
+-- @param routeString <string>
+-- @param key <string>
+-- @param doNotReplicate <boolean> == false
 function DataService:DeleteKey(client, routeString, key, doNotReplicate)
 	self:SetKey(
 		client, 
@@ -179,10 +179,10 @@ end
 
 
 -- Macro to remove a list of keys
--- @param client
--- @param routeString
--- @param keyList
--- @param doNotReplicate == false
+-- @param client <Player>
+-- @param routeString <string>
+-- @param keyList <table>
+-- @param doNotReplicate <boolean> == false
 function DataService:DeleteKeys(client, routeString, keyList, doNotReplicate)
 	local changeDictionary = table.create(#keyList)
 	
@@ -201,9 +201,7 @@ end
 
 function DataService:EngineInit()
 	Network = self.Services.Network
-	
 	Players = self.RBXServices.Players
-	
 	ProfileUtil = self.Modules.SaveProfileUtil
 	
 	ActiveProfiles = {}

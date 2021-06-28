@@ -18,6 +18,7 @@ local Ready = {}
 local Network
 
 
+-- Tells the server we are ready
 function Ready:SignalReady()
 	Network:RequestServer(Network.NetRequestType.Ready):Wait()
 end

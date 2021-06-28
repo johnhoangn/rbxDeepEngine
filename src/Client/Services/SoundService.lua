@@ -29,11 +29,11 @@ local ActiveSounds, VolumeMultipliers
 
 
 -- Server notified client about a sound playing/existing
--- @param deltaTime it took to get here
--- @param soundClass
--- @param baseID
--- @param soundID
--- @param propertiesTable
+-- @param deltaTime <float> it took to get here
+-- @param soundClass <string>
+-- @param baseID <string>
+-- @param soundID <string>
+-- @param propertiesTable <table>
 local function ReplicateSound(deltaTime, soundClass, baseID, soundID, propertiesTable)
 	local sound = SoundService:Make(soundClass, baseID, soundID, propertiesTable)
 	
@@ -53,8 +53,8 @@ end
 
 
 -- Server notified client about a sound stopping
--- @param deltaTime it took to get here
--- @param soundID
+-- @param deltaTime <float> it took to get here
+-- @param soundID <string>
 function ReplicateSoundStop(deltaTime, soundID)
 	for _, sounds in pairs(ActiveSounds) do
 		if (sounds:Contains(soundID)) then
@@ -67,9 +67,9 @@ end
 
 
 -- Server notified client about a sound changing
--- @param deltaTime it took to get here
--- @param soundID to change
--- @param propertiesTable
+-- @param deltaTime <float> it took to get here
+-- @param soundID <string> to change
+-- @param propertiesTable <table>
 function ReplicateSoundChange(deltaTime, soundID, propertiesTable)
 	local sound = ActiveSounds:Get(soundID)
 	
@@ -82,10 +82,10 @@ end
 
 
 -- Makes a sound instance
--- @param soundClass, to classify the sound
--- @param baseID
--- @param propertiesTable == nil
--- @return sound
+-- @param soundClass <string>, to classify the sound
+-- @param baseID <string>
+-- @param propertiesTable <table> == nil
+-- @return <Sound> (Wrapper)
 function SoundService:Make(soundClass, baseID, soundID, propertiesTable)
 	local soundAsset = AssetService:GetAsset(baseID)
 	local sound = self.Instancer.Sound.new(soundAsset.Sound)
@@ -121,8 +121,8 @@ end
 
 
 -- Macro to play an effect, auto-deleting
--- @param baseID
--- @param propertiesTable == nil
+-- @param baseID <string>
+-- @param propertiesTable <table> == nil
 function SoundService:PlayEffect(baseID, propertiesTable)
 	self:PlaySound(SoundClass.Effect, baseID, propertiesTable)
 end
@@ -130,8 +130,8 @@ end
 
 -- Adjusts the volume of all existing sounds of soundClass
 -- Sets the volume multiplier for new sounds
--- @param soundClass
--- @param volume
+-- @param soundClass <string>
+-- @param volume <float>
 function SoundService:SetSoundClassVolume(soundClass, volume)
 	for _, sound in ActiveSounds[soundClass]:Iterator() do
 		sound.Volume = sound.BaseVolume.Value * volume
@@ -142,7 +142,7 @@ function SoundService:SetSoundClassVolume(soundClass, volume)
 end
 
 
--- @return volume multiplier for soundClass
+-- @returns <float> volume multiplier for soundClass
 function SoundService:GetSoundClassVolume(soundClass)
 	return VolumeMultipliers[soundClass]
 end
