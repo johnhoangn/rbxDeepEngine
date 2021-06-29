@@ -1,6 +1,6 @@
 -- UISlider Class, represents a Frame that acts as a slider
 -- Enduo(Dynamese)
--- 6.24.2021
+-- 6.28.2021
 
 
 
@@ -20,22 +20,31 @@ local function SliderValue(slider)
     local left = slider.Instance.UISlider.AbsolutePosition.X
     local mousePos = Mouse.X
 
-    return math.clamp((mousePos - left) / width, 0, 1)
+    return slider._LowerBound + math.clamp((mousePos - left) / width, 0, 1) * slider._Length
 end
 
 
 -- UISlider constructor
 -- @param instance <Frame>
 -- @param container <UIContainer>
--- @param initialiValue == 0.5, <Float> [0, 1]
+-- @param initialValue == 0.5, <Float> [0, 1]
+-- @param lowerBound <float> == 0
+-- @param upperBound <float> == 1
 -- @return <UISlider>
-function UISlider.new(instance, container, initialValue)
+function UISlider.new(instance, container, initialValue, lowerBound, upperBound)
     Interface = Interface or UISlider.Services.Interface
     UserInputService = UserInputService or UISlider.RBXServices.UserInputService
     Mouse = Mouse or UISlider.LocalPlayer:GetMouse()
 
 	local self = DeepObject.new()
 
+    if (lowerBound ~= nil and upperBound ~= nil) then
+        self._LowerBound = lowerBound
+    else
+        self._LowerBound = 0
+    end
+
+    self._Length = (upperBound or 1) - self._LowerBound
     self._Container = container
     self.Instance = instance
     self.Value = initialValue or 0.5
@@ -55,19 +64,53 @@ function UISlider:GetContainer()
 end
 
 
+-- Overwrites the slider's value
+-- @param value <float>
+function UISlider:SetValue(value)
+    self.Value = math.clamp(value, self._LowerBound, self._LowerBound + self._Length)
+    self.Slid:Fire(self.Value)
+end
+
+
+-- Changes the sliders's lower bound
+-- @param lowerBound <float>
+function UISlider:SetLowerBound(lowerBound)
+    local ratio = math.abs((self.Value - self._LowerBound) / self._Length)
+
+    self._Length -= (lowerBound - self._LowerBound)
+    self._LowerBound = lowerBound
+
+    assert(self._Length > 0, "Length would be zero with lower bound of " .. lowerBound)
+
+    self.Value = self._Length * ratio + self._LowerBound
+end
+
+
+-- Changes the slider's upper bound
+-- @param upperBound <float>
+function UISlider:SetUpperBound(upperBound)
+    local ratio = math.abs((self.Value - self._LowerBound) / self._Length)
+
+    assert(upperBound > self._LowerBound, "Length would be invalid with upper bound of " .. upperBound)
+
+    self._Length += (upperBound - (self._LowerBound + self._Length))
+    self.Value = self._Length * ratio + self._LowerBound
+end
+
+
 -- Hooks up events
 function UISlider:Bind()
     self:GetMaid():GiveTask(self.Instance.UISlider.MouseButton1Down:Connect(function()
         if (not Interface:Obscured(self)) then
-            local ratio = SliderValue(self)
+            local value = SliderValue(self)
 
-            self.Value = ratio
-            self.Sliding:Fire(ratio)
+            self.Value = value
+            self.Sliding:Fire(value)
 
             self._Moving = Mouse.Move:Connect(function()
-                ratio = SliderValue(self)
-                self.Value = ratio
-                self.Sliding:Fire(ratio)
+                value = SliderValue(self)
+                self.Value = value
+                self.Sliding:Fire(value)
             end)
 
             self._Release = UserInputService.InputEnded:Connect(function(iObject)
