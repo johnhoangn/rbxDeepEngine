@@ -4,7 +4,7 @@ Deep Engine; Deep Game Framework; DGF
 Game framework for Roblox, used by myself and my developer group dubbed Studio Deep
 
 Dynamese(Enduo) 
-May 12th, 2021
+June 28th, 2021
 
 Assets:
     Please follow the Template asset and Template asset class structuring for
@@ -56,8 +56,8 @@ Services:
         1001 is MetronomeService
 
 Plugins:
-    Any modules placed inside the Plugins folder are guaranteed to automatically 
-    run AFTER the server has 100% started and BEFORE the client starts
+    Any modules placed inside the Plugins folder(s) are guaranteed to automatically 
+    run AFTER the environment has 100% started
     There are no requirements imposed on these modules
 
 Preloads:
@@ -65,12 +65,12 @@ Preloads:
     preload into the client's asset cache
     Please format these modules to return an array-like e.g.
     
-        return {
-            "FF0";
-            "FF1";
-        }
-        
-        return { "FF0"; "FF1"; }
+    return {
+        "FF0";
+        "FF1";
+    }
+    
+    return { "FF0"; "FF1"; }
         
 Loading Screen:
     See Roblox.ReplicatedFirst.DeepLoad
@@ -80,6 +80,7 @@ Using Deep Engine from an external-to-the-engine code container:
     _G.DeepEngineOnline
     
 Extending Deep Engine:
+
     -- Adds functionality to the Engine such as a Network service,
     --	eliminating the extra "Services" layer when indexing from an Engine module
     --	e.g. self.Services.Network -> self.Network
