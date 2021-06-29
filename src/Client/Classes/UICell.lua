@@ -39,9 +39,15 @@ end
 -- Assigns a value into payload
 -- @param key <string>
 -- @param value <any>
-function UICell:Set(key, value)
+-- @param skipSignal <boolean> == nil (false),
+--      will withhold from signaling a payload change; useful when
+--      changing metadata and don't want to trigger an update
+function UICell:Set(key, value, skipSignal)
     self._Payload[key] = value
-    self.Changed:Fire(key, value)
+
+    if (not skipSignal) then
+        self.Changed:Fire(key, value)
+    end
 end
 
 
