@@ -15,6 +15,13 @@
 --  enabling the developer to implement "drag-and-drop" systems with relative ease
 --  by having all of that logic already in place
 
+-- Provided UIElements:
+--  UISlider
+--  UIButton
+--  UIToggle
+--  UICell
+--  UIContainer
+
 
 
 local Interface = {}
