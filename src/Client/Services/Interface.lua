@@ -17,6 +17,7 @@
 
 -- Provided UIElements:
 --  UISlider
+--  UIVSlider
 --  UIButton
 --  UIToggle
 --  UICell
@@ -75,6 +76,13 @@ local function BuildContainers()
                     )
                 elseif (elementDescendant:FindFirstChild("UISlider")) then
                     newChild = Interface.Classes.UISlider.new(
+                        elementDescendant,
+                        container,
+                        nil -- Leave default value to a GUI Controller
+                    )
+
+                elseif (elementDescendant:FindFirstChild("UIVSlider")) then
+                    newChild = Interface.Classes.UIVerticalSlider.new(
                         elementDescendant,
                         container,
                         nil -- Leave default value to a GUI Controller

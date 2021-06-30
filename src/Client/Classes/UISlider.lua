@@ -1,4 +1,5 @@
 -- UISlider Class, represents a Frame that acts as a slider
+-- Left is lower bound
 -- Enduo(Dynamese)
 -- 6.28.2021
 
@@ -10,18 +11,6 @@ local DeepObject = require(script.Parent.DeepObject)
 local UISlider = {}
 UISlider.__index = UISlider
 setmetatable(UISlider, DeepObject)
-
-
--- Determines where the mouse is relative to the slider
--- @param slider <UISlider>
--- @returns value between [0, 1] <Float>
-local function SliderValue(slider)
-    local width = slider.Instance.UISlider.AbsoluteSize.X
-    local left = slider.Instance.UISlider.AbsolutePosition.X
-    local mousePos = Mouse.X
-
-    return slider._LowerBound + math.clamp((mousePos - left) / width, 0, 1) * slider._Length
-end
 
 
 -- UISlider constructor
@@ -56,6 +45,19 @@ function UISlider.new(instance, container, initialValue, lowerBound, upperBound)
 
 	return setmetatable(self, UISlider)
 end
+
+
+-- Determines where the mouse is relative to the slider
+-- @param slider <UISlider>
+-- @returns value between [0, 1] <Float>
+function UISlider:_SliderValue(slider)
+    local width = slider.Instance.UISlider.AbsoluteSize.X
+    local left = slider.Instance.UISlider.AbsolutePosition.X
+    local mousePos = Mouse.X
+
+    return slider._LowerBound + math.clamp((mousePos - left) / width, 0, 1) * slider._Length
+end
+
 
 
 -- TODO: Move to UIElement superclass
@@ -102,13 +104,13 @@ end
 function UISlider:Bind()
     self:GetMaid():GiveTask(self.Instance.UISlider.MouseButton1Down:Connect(function()
         if (not Interface:Obscured(self)) then
-            local value = SliderValue(self)
+            local value = self:_SliderValue(self)
 
             self.Value = value
             self.Sliding:Fire(value)
 
             self._Moving = Mouse.Move:Connect(function()
-                value = SliderValue(self)
+                value = self:_SliderValue(self)
                 self.Value = value
                 self.Sliding:Fire(value)
             end)
@@ -119,7 +121,7 @@ function UISlider:Bind()
                     self._Release:Disconnect()
                     self._Moving = nil
                     self._Release = nil
-                    self.Slid:Fire(SliderValue(self))
+                    self.Slid:Fire(self:_SliderValue(self))
                 end
             end)
         end
