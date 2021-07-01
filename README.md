@@ -1,10 +1,12 @@
 # RBXDeepEngine
+WIP
+
 Deep Engine; Deep Game Framework; DGF
 
 Game framework for Roblox, used by myself and my developer group dubbed Studio Deep
 
 Dynamese(Enduo) 
-June 28th, 2021
+July 1st, 2021
 
 Assets:
     Please follow the Template asset and Template asset class structuring for
@@ -76,7 +78,7 @@ Loading Screen:
     See Roblox.ReplicatedFirst.DeepLoad
     
 Using Deep Engine from an external-to-the-engine code container:
-    _G.DeepEngine
+    _G.Deep
     _G.DeepEngineOnline
     
 Extending Deep Engine:
