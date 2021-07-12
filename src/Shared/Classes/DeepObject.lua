@@ -12,11 +12,10 @@ end
 
 
 -- DeepObject constructor
--- @param instance <Frame>
--- @param container <UIContainer>
+-- @param members <table> == nil
 -- @returns <DeepObject>
-function DeepObject.new()
-	return setmetatable({}, DeepObject)
+function DeepObject.new(members)
+	return setmetatable(members or {}, DeepObject)
 end
 
 
