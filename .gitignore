@@ -43,4 +43,6 @@ luac.out
 **/init.meta.json
 default.project.json
 Todo.server.lua
+**/MainServer.server.lua
+**/MainClient.client.lua
 **/Plugins
