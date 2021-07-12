@@ -57,21 +57,39 @@ end
 
 
 function MetronomeService:EngineStart()
-	RunService.Stepped:Connect(function(_, dt)
-        for frequency, frequencyGroup in pairs(Frequencies) do
-            local period = 1/frequency
-            
-            frequencyGroup.SinceLastTick += dt
+    if (self.LocalPlayer ~= nil) then
+        RunService.Heartbeat:Connect(function(dt)
+            for frequency, frequencyGroup in pairs(Frequencies) do
+                local period = 1/frequency
 
-            if (frequencyGroup.SinceLastTick >= period) then
-                frequencyGroup.SinceLastTick = 0
+                frequencyGroup.SinceLastTick += dt
 
-                for _taskID, callback in pairs(frequencyGroup.Tasks) do
-                    callback(period)
+                if (frequencyGroup.SinceLastTick >= period) then
+                    frequencyGroup.SinceLastTick = 0
+
+                    for _taskID, callback in pairs(frequencyGroup.Tasks) do
+                        callback(period)
+                    end
                 end
             end
-        end
-    end)
+        end)
+    else
+        RunService.Stepped:Connect(function(_, dt)
+            for frequency, frequencyGroup in pairs(Frequencies) do
+                local period = 1/frequency
+
+                frequencyGroup.SinceLastTick += dt
+
+                if (frequencyGroup.SinceLastTick >= period) then
+                    frequencyGroup.SinceLastTick = 0
+
+                    for _taskID, callback in pairs(frequencyGroup.Tasks) do
+                        callback(period)
+                    end
+                end
+            end
+        end)
+    end
 end
 
 
