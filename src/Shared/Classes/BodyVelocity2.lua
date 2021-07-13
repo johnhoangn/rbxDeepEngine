@@ -1,15 +1,15 @@
 -- BodyVelocity2, BodyVelocity's successor (at least I hoped it to be)
 -- Created since Constraint-based linear velocity is still not here
--- !! NOTE: This only works in frictionless systems !!
--- !! NOTE: This requires the entire attached assembly's mass to be EXACTLY the part's mass !!
 
 -- Managed to 99.99% match normal BodyVelocity
---  (the catch is you have to set the part's velocity on the first frame)
+--  (the catch is you have to set the part's velocity on the first frame for the last .01%)
 
 -- Usage: Treat it like a normal BodyVelocity, parent it, change maxforce, change velocity, etc.
 
 -- Dynamese (Enduo)
--- 7.2.2021
+-- 7.12.2021
+
+-- Updated using .AssemblyMass, this should work well enough in all situations now
 
 
 local ZERO_VECTOR = Vector3.new()
@@ -96,7 +96,7 @@ function BodyVelocity2:Step()
     local part = self._Parent
     local targetForce =
         (Vector3.new(0, workspace.Gravity, 0)
-        + (self._Velocity - part.Velocity)) * part:GetMass()
+        + (self._Velocity - part.Velocity)) * part.AssemblyMass
 
     self.Instance.Force = Vector3.new(
         math.clamp(targetForce.X, -self._MaxForce.X, self._MaxForce.X),
