@@ -7,9 +7,11 @@
 -- Usage: Treat it like a normal BodyVelocity, parent it, change maxforce, change velocity, etc.
 
 -- Dynamese (Enduo)
--- 7.12.2021
+-- 7.14.2021
 
 -- Updated using .AssemblyMass, this should work well enough in all situations now
+-- Swapped .Velocity in favor of .AssemblyLinearVelocity in situations the assembly might be rotating
+--  and the root part might be off axis of the rotation
 
 
 local ZERO_VECTOR = Vector3.new()
@@ -96,7 +98,7 @@ function BodyVelocity2:Step()
     local part = self._Parent
     local targetForce =
         (Vector3.new(0, workspace.Gravity, 0)
-        + (self._Velocity - part.Velocity)) * part.AssemblyMass
+        + (self._Velocity - part.AssemblyMassLinearVelocity)) * part.AssemblyMass
 
     self.Instance.Force = Vector3.new(
         math.clamp(targetForce.X, -self._MaxForce.X, self._MaxForce.X),
