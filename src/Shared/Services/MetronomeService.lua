@@ -21,15 +21,17 @@ function MetronomeService:BindToFrequency(frequency, callback)
     local taskID = HTTPService:GenerateGUID()
 
 	if (frequencyTasks == nil) then
-		frequencyTasks = { SinceLastTick = 0; NumTasks = 1; Tasks = {taskID = callback}; }
+		frequencyTasks = { SinceLastTick = 0; NumTasks = 1; Tasks = {[taskID] = callback}; }
 		Frequencies[frequency] = frequencyTasks
     else
         frequencyTasks.Tasks[taskID] = callback
+        frequencyTasks.NumTasks += 1
     end
 
     Tasks[taskID] = {
         Frequency = frequency;
         Callback = callback;
+        Working = false;
     }
 
     return taskID
@@ -65,10 +67,22 @@ function MetronomeService:EngineStart()
                 frequencyGroup.SinceLastTick += dt
 
                 if (frequencyGroup.SinceLastTick >= period) then
+                    local sinceLastTick = frequencyGroup.SinceLastTick
+
                     frequencyGroup.SinceLastTick = 0
 
-                    for _taskID, callback in pairs(frequencyGroup.Tasks) do
-                        callback(period)
+                    for taskID, callback in pairs(frequencyGroup.Tasks) do
+                        if (not Tasks[taskID].Working) then
+                            self.Modules.ThreadUtil.Spawn(function()
+                                if (Tasks[taskID] ~= nil) then
+                                    Tasks[taskID].Working = true
+                                    callback(sinceLastTick)
+                                end
+                                if (Tasks[taskID] ~= nil) then
+                                    Tasks[taskID].Working = false
+                                end
+                            end)
+                        end
                     end
                 end
             end
@@ -83,8 +97,18 @@ function MetronomeService:EngineStart()
                 if (frequencyGroup.SinceLastTick >= period) then
                     frequencyGroup.SinceLastTick = 0
 
-                    for _taskID, callback in pairs(frequencyGroup.Tasks) do
-                        callback(period)
+                    for taskID, callback in pairs(frequencyGroup.Tasks) do
+                        if (not Tasks[taskID].Working) then
+                            self.Modules.ThreadUtil.Spawn(function()
+                                if (Tasks[taskID] ~= nil) then
+                                    Tasks[taskID].Working = true
+                                    callback(period)
+                                end
+                                if (Tasks[taskID] ~= nil) then
+                                    Tasks[taskID].Working = false
+                                end
+                            end)
+                        end
                     end
                 end
             end
@@ -96,6 +120,8 @@ end
 function MetronomeService:EngineInit()
 	HTTPService = self.RBXServices.HttpService
     RunService = self.RBXServices.RunService
+
+    TaskMutex = self.Classes.Mutex.new()
 end
 
 
