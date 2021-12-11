@@ -77,20 +77,20 @@ Preloads:
 Loading Screen:
     See Roblox.ReplicatedFirst.DeepLoad
     
-Using Deep Engine from an external-to-the-engine code container:
+Using Deep Engine from an external-to-the-framework code container:
     _G.Deep
     _G.DeepEngineOnline
     
 Extending Deep Engine:
 
-    -- Adds functionality to the Engine such as a Network service,
-    --	eliminating the extra "Services" layer when indexing from an Engine module
+    -- Adds functionality to the Framework such as a Network service,
+    --	eliminating the extra "Services" layer when indexing from an Framework module
     --	e.g. self.Services.Network -> self.Network
     -- @param key
     -- @param value
     Engine:ExtendEngine(key, value)
 
-    -- Writes a value to a key at the Engine level (Engine.Blackboard)
+    -- Writes a value to a key at the Framework level (Engine.Blackboard)
     -- @param key
     -- @param value
     Engine:SetEngineVariable(key, value)
