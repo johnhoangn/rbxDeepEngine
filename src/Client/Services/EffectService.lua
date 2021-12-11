@@ -56,9 +56,10 @@ end
 -- Creates a new effect
 -- @param baseID <string>
 -- @param effectUID <string>, auto generated default
+-- @param dt <float> == 0, elapsed time since the request
 -- @param ... effect args
 -- @returns <string> uid of effect
-function EffectService:Make(baseID, effectUID, ...)
+function EffectService:Make(baseID, effectUID, dt, ...)
 	local uid = effectUID or HttpService:GenerateGUID()
 	local cache = EffectCaches:Get(baseID)
 	local effect
@@ -89,7 +90,7 @@ function EffectService:Make(baseID, effectUID, ...)
 	-- Log this effect 
 	ActiveEffects:Add(uid, effect)
 	
-	self.Modules.ThreadUtil.Spawn(effect.Play, effect, ...)
+	self.Modules.ThreadUtil.Spawn(effect.Play, effect, dt, ...)
 	
 	return uid
 end
@@ -97,24 +98,26 @@ end
 
 -- Changes an effect
 -- @param effectUID <string>
+-- @param dt <float>
 -- @param ... change args
-function EffectService:ChangeEffect(effectUID, ...)
+function EffectService:ChangeEffect(effectUID, dt, ...)
 	local effect = ActiveEffects:Get(effectUID)
 
 	if (effect ~= nil) then
-		effect:Change(...)
+		effect:Change(dt, ...)
 	end
 end
 
 
 -- Stops an effect
 -- @param effectUID <string>
+-- @param dt <float>
 -- @param ... stop args
-function EffectService:StopEffect(effectUID, ...)
+function EffectService:StopEffect(effectUID, dt, ...)
 	local effect = ActiveEffects:Get(effectUID)
 	
 	if (effect ~= nil) then
-		effect:Stop(...)
+		effect:Stop(dt, ...)
 	end
 end
 

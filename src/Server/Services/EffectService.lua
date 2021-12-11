@@ -19,21 +19,13 @@ local Network, HttpService, AssetService
 local ActiveEffects
 
 
--- Creates a new effect
--- @param baseID
--- @param effectUID, auto generated default
--- @param pre_dt == 0
--- @param ... effect args
--- @return uid of effect
-function EffectService:Make(baseID, pre_dt, ...)
-	assert(AssetService:GetAsset(baseID) ~= nil, "Invalid effect " .. baseID)
-	local uid = HttpService:GenerateGUID()
-	local packet = Network:Pack(
-		Network.NetProtocol.Forget, 
-		Network.NetRequestType.Effect, 
+local function MakeEffectPacket(uid, baseID, pre_dt, ...)
+    local packet = Network:Pack(
+		Network.NetProtocol.Forget,
+		Network.NetRequestType.Effect,
 		pre_dt or 0,
-		baseID, 
-		uid, 
+		baseID,
+		uid,
 		...
 	)
 	
@@ -43,9 +35,42 @@ function EffectService:Make(baseID, pre_dt, ...)
 			...
 		};
 	})
-	
+
+    return packet
+end
+
+
+-- Creates a new effect and sends it to all users
+-- @param baseID
+-- @param effectUID, auto generated default
+-- @param pre_dt == 0
+-- @param ... effect args
+-- @return uid of effect
+function EffectService:Make(baseID, pre_dt, ...)
+	assert(AssetService:GetAsset(baseID) ~= nil, "Invalid effect " .. baseID)
+	local uid = HttpService:GenerateGUID()
+	local packet = MakeEffectPacket(uid, baseID, pre_dt, ...)
+
 	Network:FireAllClients(packet)
-	
+
+	return uid
+end
+
+
+-- Creates a new effect and sends it to all users except one
+-- @param exclude <Player>
+-- @param baseID
+-- @param effectUID, auto generated default
+-- @param pre_dt == 0
+-- @param ... effect args
+-- @return uid of effect
+function EffectService:MakeBut(exclude, baseID, pre_dt, ...)
+	assert(AssetService:GetAsset(baseID) ~= nil, "Invalid effect " .. baseID)
+	local uid = HttpService:GenerateGUID()
+	local packet = MakeEffectPacket(uid, baseID, pre_dt, ...)
+
+	Network:FireAllClientsBut(exclude, packet)
+
 	return uid
 end
 
