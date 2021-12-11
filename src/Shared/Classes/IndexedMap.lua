@@ -125,9 +125,11 @@ function IndexedMap:KeyIterator()
 	
 	i = 0
 	
-	table.sort(keys, function(a, b)
-		return a < b
-	end)
+    if (typeof(keys[1]) ~= "Instance") then
+        table.sort(keys, function(a, b)
+            return a < b
+        end)
+    end
 	
 	return function()
 		i += 1
