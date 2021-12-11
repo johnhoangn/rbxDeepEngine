@@ -3,7 +3,9 @@ WIP
 
 Deep Engine; Deep Game Framework; DGF
 
-Game framework for Roblox, used by myself and my developer group dubbed Studio Deep
+Game framework for Roblox, used by myself and my developer group dubbed Studio Deep. 
+Highly inspired by CM32's Aero Game Framework as I wasn't a fan of the black-boxification of remote usage.
+This framework is similar to AGF with EXPLICIT server/client communication along with my own approach to smoothing out various development troubles.
 
 Dynamese(Enduo) 
 July 1st, 2021
