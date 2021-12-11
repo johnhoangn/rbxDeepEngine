@@ -30,7 +30,7 @@ local DEFAULT_RESPONSE_TIMEOUT = 300
 local RATE_LIMIT = 30
 
 
-local Network = {}
+local Network = {Priority = 500}
 local SyncService, HttpService, Players, BigBrother
 local NetProtocol, NetRequestType, PacketStatus
 local Router
@@ -121,12 +121,12 @@ local function HandleInbound(client, packet)
 						-- elseif (protocol == NetProtocol.None) then
 						
 					else
-						Network:Warn("Invalid protocol", client, TableUtil.EncodeJSON(packet))
+						Network:Warn("Invalid protocol", client, TableUtil.Print(packet))
 						return false
 					end	
 					
 				else
-					Network:Warn("Invalid request", client, TableUtil.EncodeJSON(packet))
+					Network:Warn("Invalid request", client, TableUtil.Print(packet))
 					return false
 				end	
 			end			
@@ -135,7 +135,7 @@ local function HandleInbound(client, packet)
 		elseif (status == PacketStatus.Response) then
 			local responseHandlerKey = client.UserId .. packetID
 			local responseHandler = AwaitingResponses:Remove(responseHandlerKey)
-			
+
 			-- responseHandler == function(responded, client, deltaTime, ...)
 			if (responseHandler ~= nil) then
 				responseHandler(
@@ -146,12 +146,12 @@ local function HandleInbound(client, packet)
 				)
 				
 			else
-				Network:Warn("No response handler", client, TableUtil.EncodeJSON(packet))
+				Network:Warn("No response handler", client, TableUtil.Print(packet))
 				return false
 			end
 			
 		else
-			Network:Warn("Invalid packet status", client, TableUtil.EncodeJSON(packet))
+			Network:Warn("Invalid packet status", client, TableUtil.Print(packet))
 			return false
 		end
 	else
@@ -252,18 +252,18 @@ end
 -- @param timeout == DEFAULT_RESPONSE_TIMEOUT
 function Network:FireClientList(clientList, packet, responseHandler, timeout)
 	local responseHandlerKeys = table.create(#clientList)
-	
-	if (packet.Protocol == NetProtocol.Response) then
+
+	if (packet[2] == NetProtocol.Response) then
 		for i, client in ipairs(clientList) do
-			local responseHandlerKey = client.UserId .. packet[3]
+			local responseHandlerKey = client.UserId .. packet[4]
 			
 			AwaitingResponses:Add(responseHandlerKey, responseHandler)
 			responseHandlerKeys[i] = responseHandlerKey
 		end
 		
 		ThreadUtil.Delay(
-			timeout or DEFAULT_RESPONSE_TIMEOUT, 
-			PurgeResponseHandlers(responseHandlerKeys)
+			timeout or DEFAULT_RESPONSE_TIMEOUT,
+			PurgeResponseHandlers, responseHandlerKeys
 		)
 	end
 	
@@ -302,6 +302,7 @@ end
 -- @param requestType
 -- @param requestHandler == function(client, deltaTime, ...)
 function Network:HandleRequestType(requestType, requestHandler)
+    assert(requestType ~= nil, "nil request type")
     assert(requestHandler ~= nil, "nil request handler")
 	assert(RequestHandlers:Get(requestType) == nil, 
 		"Attempt to overwrite requestHandler for " .. requestType)

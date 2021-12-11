@@ -26,7 +26,7 @@ local BULK_REQUEST_SIZE = 60
 local MAX_BUDGET = 30
 
 
-local Network = {}
+local Network = {Priority = 500}
 local SyncService, HttpService, MetronomeService
 local NetProtocol, NetRequestType, PacketStatus
 local Router
