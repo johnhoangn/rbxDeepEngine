@@ -29,7 +29,7 @@
 
 
 
-local AssetService = {}
+local AssetService = {Priority = 110}
 local Network, HttpService
 local ClassNames = {}
 local Hexadecimal
@@ -82,13 +82,6 @@ local function HexifyAssets()
 end
 
 
--- Retrieves the actual name of a class
--- @param classID <string>, HEX
-local function GetClassName(classID)
-	return ClassNames[tonumber(classID, 16)]
-end
-
-
 -- Defined here so interpreter doesn't do it at runtime
 -- (if instead done as anon func in StreamAsset())
 local function CleanupStreamAsset(assetFolder)
@@ -114,6 +107,13 @@ local function StreamAsset(client, deltaTime, baseID)
 	AssetService.Modules.ThreadUtil.Delay(10, CleanupStreamAsset, assetFolder)
 	
 	return streamID 
+end
+
+
+-- Retrieves the actual name of a class
+-- @param classID <string>, HEX
+function AssetService:GetClassName(classID)
+	return ClassNames[tonumber(classID, 16)]
 end
 
 
