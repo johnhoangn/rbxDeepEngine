@@ -98,6 +98,13 @@
 		evaera & buildthomas: https://devforum.roblox.com/t/coroutines-v-s-spawn-which-one-should-i-use/368966
 		Quenty: FastSpawn (AKA SpawnNow) method using BindableEvent
 
+
+
+        DGF ADDITIONS:
+
+        Thread.IntDelay(time, func, ... interupt signals)
+        Thread.IntWait(time, ... interupt signals)
+
 --]]
 
 
@@ -158,6 +165,50 @@ function Thread.DelayRepeat(intervalTime, func, ...)
 		end
 	end)
 	return hb
+end
+
+
+function Thread.IntDelay(waitTime, completeCallback, ...)
+    local conns = {}
+
+    local function cleanup()
+        for _, conn in ipairs(conns) do
+            conn:Disconnect()
+        end
+    end
+
+    table.insert(conns, Thread.DelayRepeat(waitTime, function()
+        completeCallback()
+    end))
+
+    for _, sig in ipairs({...}) do
+        table.insert(conns, sig:Connect(cleanup))
+    end
+end
+
+
+function Thread.IntWait(waitTime, ...)
+    local started = tick()
+    local returnBindable = Instance.new("BindableEvent")
+    local conns = {}
+
+    local function cleanup()
+        returnBindable:Fire(tick() - started, waitTime)
+        returnBindable:Destroy()
+        for _, conn in ipairs(conns) do
+            conn:Disconnect()
+        end
+    end
+
+    table.insert(conns, Thread.DelayRepeat(waitTime, function()
+        cleanup()
+    end))
+
+    for _, sig in ipairs({...}) do
+        table.insert(conns, sig:Connect(cleanup))
+    end
+
+    return returnBindable:Wait()
 end
 
 

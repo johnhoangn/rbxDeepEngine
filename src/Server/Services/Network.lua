@@ -3,7 +3,6 @@
 -- May 9, 2021
 
 --[[
-
 	Creating packets:
 	Network:Pack(protocol, requestType, ...)
 	
@@ -30,8 +29,8 @@ local DEFAULT_RESPONSE_TIMEOUT = 300
 local RATE_LIMIT = 30
 
 
-local Network = {Priority = 500}
-local SyncService, HttpService, Players, BigBrother
+local Network = { Priority = 1000 }
+local HttpService, Players, BigBrother
 local NetProtocol, NetRequestType, PacketStatus
 local Router
 local TableUtil, ThreadUtil
@@ -44,7 +43,7 @@ local AwaitingResponses, RequestHandlers
 -- @param stamp
 -- @return [0, deltaTime]
 local function TimeDelta(stamp)
-	local now = SyncService:GetTime()
+	local now = workspace:GetServerTimeNow()
 	-- Damage control for high pingers
 	stamp = math.min(stamp, now + 1)
 	return math.max(0, now - stamp)
@@ -73,8 +72,8 @@ local function HandleInbound(client, packet)
 				local success, exitCode = pcall(function()
 					-- Swap the true requestType in
 					packet[5] = packet[6][1]
-					TableUtil.FastRemove(packet[6], 1)
-					
+					table.remove(packet[6], 1)
+
 					return HandleInbound(client, packet)
 				end)
 				
@@ -319,7 +318,6 @@ end
 
 
 function Network:EngineInit()
-	SyncService = self.Services.SyncService
 	BigBrother = nil --self.Services.BigBrother
 	
 	HttpService = self.RBXServices.HttpService
@@ -344,20 +342,7 @@ end
 
 function Network:EngineStart()
 	Router.OnServerEvent:Connect(HandleInbound)
-    
     self:HandleRequestType(NetRequestType.BulkRequest, HandleBulkRequest)
-
-    --
-    ThreadUtil.Delay(5, function()
-        self:FireClient(Players:GetPlayers()[1], self:Pack(
-            NetProtocol.Forget,
-            NetRequestType.Test,
-            "Hello, world!",
-            "foo bar",
-            420
-        ))
-    end)
-    --]]
 end
 
 

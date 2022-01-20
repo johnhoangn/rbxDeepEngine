@@ -5,7 +5,7 @@
 ]]
 
 
-local Debris = {}
+local Debris = { Priority = 900 }
 local ThreadUtil
 
 

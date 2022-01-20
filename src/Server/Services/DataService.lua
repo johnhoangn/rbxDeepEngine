@@ -32,7 +32,7 @@
 local NIL_TOKEN = "\n"
 
 
-local DataService = { NIL_TOKEN = NIL_TOKEN }
+local DataService = { NIL_TOKEN = NIL_TOKEN; Priority = 900 }
 local Network, Players, ProfileUtil
 
 
@@ -43,41 +43,55 @@ local GameProfileStore
 -- Loads or creates the client's profile
 -- @param client <Player>
 local function HandleClientJoin(client)
-	local profile = GameProfileStore:LoadProfileAsync(
-		"Player_" .. client.UserId,
-		"ForceLoad"
-	)
+	local triesLeft = 5
+	local profile
 	
-	if profile ~= nil then
-		profile:Reconcile() -- Fill in missing variables from ProfileTemplate (optional)
-		
-		profile:ListenToRelease(function()
-			ActiveProfiles[client] = nil
-			-- The profile could've been loaded on another Roblox server:
-			client:Kick()
-		end)
-		
-		if client:IsDescendantOf(Players) == true then
-			-- A profile has been successfully loaded:
-			ActiveProfiles[client] = profile
-			
+	while (not profile and triesLeft > 0) do
+		profile = GameProfileStore:LoadProfileAsync("Player_" .. client.UserId)
+
+		if (profile ~= nil) then
+			profile:AddUserId(client.UserId) -- GDPR compliance
+			profile:Reconcile() -- Fill in missing variables from ProfileTemplate (optional)
+
+			profile:ListenToRelease(function()
+				ActiveProfiles[client] = nil
+				-- The profile could've been loaded on another Roblox server:
+				client:Kick(DataService.Enums.KickMessages.DataLoadViolation)
+			end)
+
+			if (client:IsDescendantOf(Players)) then
+				-- A profile has been successfully loaded:
+				ActiveProfiles[client] = profile
+			else
+				-- Player left before the profile loaded:
+				profile:Release()
+			end
+
+			DataService.DataReady:Fire(client)
+
+			-- Replicate
+			Network:FireClient(client, Network:Pack(
+				Network.NetProtocol.Forget, 
+				Network.NetRequestType.DataStream,
+				profile.Data
+			))
 		else
-			-- Player left before the profile loaded:
-			profile:Release()
+			DataService:Warn("Profile failed to load!", client, "(" .. triesLeft .. ")")
 		end
-		
-	else
+
+		triesLeft -= 1
+
+		if (not profile) then
+			wait(1)
+		end
+	end
+
+
+	if (not profile) then
 		-- The profile couldn't be loaded possibly due to other
 		-- 	Roblox servers trying to load this profile at the same time:
-		client:Kick() 
+		client:Kick(DataService.Enums.KickMessages.DataLoadViolation) 
 	end
-	
-	-- Replicate
-	Network:FireClient(client, Network:Pack(
-		Network.NetProtocol.Forget, 
-		Network.NetRequestType.DataStream,
-		profile.Data
-	))
 end
 
 
@@ -99,6 +113,38 @@ function DataService:GetData(client)
 end
 
 
+-- Attempts to get data for client, and will yield for it
+-- @param client <Player>
+-- @param timeout <number>
+function DataService:WaitData(client, timeout)
+	local data = self:GetData(client)
+
+	if (not data) then
+		local retrieved = self.Classes.Signal.new()
+		local ready
+
+		self.Modules.ThreadUtil.Delay(timeout or 5, function()
+			if (data == nil) then
+				ready:Disconnect()
+				retrieved:Fire()
+			end
+		end)
+
+		ready = self.DataReady:Connect(function(_client)
+			if (_client == client) then
+				ready:Disconnect()
+				data = self:GetData(_client)
+				retrieved:Fire()
+			end
+		end)
+
+		retrieved:Wait()
+	end
+
+	return data
+end
+
+
 -- Changes values defined under the Data table located at routeString
 -- @param client <Player>
 -- @param routeString <string>
@@ -110,14 +156,14 @@ function DataService:SetKeys(client, routeString, changeDictionary, doNotReplica
 	-- Incase it was unloaded by the time we try to change keys
 	if (root ~= nil) then
 		for subDir in string.gmatch(routeString, "%w+") do
-			assert(root[subDir] ~= nil, 
+			assert(root[subDir] ~= nil or root[tonumber(subDir)], 
 				string.format(
 					"Cannot reach (%s), invalid route (%s)", 
 					subDir, 
 					routeString
 				)
 			)
-			root = root[subDir]
+			root = root[subDir] or root[tonumber(subDir)]
 		end
 		
 		-- Apply
@@ -151,6 +197,10 @@ end
 -- @param value <any>
 -- @param doNotReplicate <boolean> == false
 function DataService:SetKey(client, routeString, key, value, doNotReplicate)
+	if (value == nil) then
+		value = NIL_TOKEN
+	end
+
 	self:SetKeys(
 		client, 
 		routeString, 
@@ -205,6 +255,7 @@ function DataService:EngineInit()
 	ProfileUtil = self.Modules.SaveProfileUtil
 	
 	ActiveProfiles = {}
+	self.DataReady = self.Classes.Signal.new()
 	
 	GameProfileStore = ProfileUtil.GetProfileStore(
 		"PlayerData",
@@ -214,15 +265,8 @@ end
 
 
 function DataService:EngineStart()
-	Players.PlayerAdded:Connect(HandleClientJoin)
-	Players.PlayerRemoving:Connect(HandleClientLeave)
-
-	-- Process already joined players
-	for _, unHandledPlayer in ipairs(Players:GetPlayers()) do
-		if (self:GetData(unHandledPlayer) == nil) then
-			HandleClientJoin(unHandledPlayer)
-		end
-	end
+	self.Services.PlayerService:AddJoinTask(HandleClientJoin, "DataJoin")
+	self.Services.PlayerService:AddLeaveTask(HandleClientLeave, "DataLeave")
 end
 
 

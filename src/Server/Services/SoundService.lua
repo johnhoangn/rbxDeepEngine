@@ -1,4 +1,4 @@
-local SoundService = {}
+local SoundService = { Priority = 750 }
 local HttpService, Network, Players
 
 

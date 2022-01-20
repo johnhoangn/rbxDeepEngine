@@ -13,7 +13,7 @@
 ]]
 
 
-local ReadyService = {}
+local ReadyService = { Priority = 900 }
 local Players, Network
 
 

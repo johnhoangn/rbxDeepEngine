@@ -43,7 +43,7 @@ local Engine = {
 	
 	DebugLevel = 1;
 	
-	_ServiceName = "Deep Engine Server";
+	_ServiceName = "DGF Server";
 }
 
 
@@ -87,14 +87,21 @@ end
 
 -- Console debugging
 function Engine:Print(...)
-	print(self._ServiceName .. "\n", ...)
+	print(self._ServiceName .. "\n >>>", ...)
 end
 function Engine:Warn(...)
-	warn(self._ServiceName .. "\n", ...)
+	warn(self._ServiceName .. "\n >>>", ...)
 end
 function Engine:Log(level, ...)
+	local logFile = Engine.Root:FindFirstChild("LogFile")
+	if (not logFile) then
+		logFile = Instance.new("StringValue")
+		logFile.Name = "LogFile"
+		logFile.Parent = Engine.Root
+	end
 	if (level <= Engine.DebugLevel) then
-		self:Print("DEBUG", ...)
+		local contents = {...}; for k, v in ipairs(contents) do contents[k] = tostring(v) end
+		logFile.Value ..= "[LEVEL " .. level .. "] " .. self._ServiceName .. ": " .. table.concat(contents, " ") .. "\n"
 	end
 end
 
@@ -130,15 +137,26 @@ local function LoadServices()
 		
 		Engine:Link(service)
 		service._ServiceName = serviceModule.Name
+		service.Priority = service.Priority or 500
 		Engine.Services[serviceModule.Name] = service
 		table.insert(ServiceInitPriorityQueue, service)
 	end
 
 	-- More positive number, earlier turn
 	table.sort(ServiceInitPriorityQueue, function(a, b)
-		return (a.Priority or 0) > (b.Priority or 0)
+        if ((a.Priority or 0) == (b.Priority or 0)) then
+            return a._ServiceName < b._ServiceName
+        else
+		    return (a.Priority or 0) > (b.Priority or 0)
+        end
 	end)
 	
+    local serviceInitOrder = {}
+    for _, serviceModule in ipairs(ServiceInitPriorityQueue) do
+        table.insert(serviceInitOrder, ("%4d - %s"):format(serviceModule.Priority, serviceModule._ServiceName))
+    end
+    print("\n", table.concat(serviceInitOrder, "\n "))
+
 	return ServiceInitPriorityQueue
 end
 
@@ -157,8 +175,8 @@ end
 -- @returns completion Signal
 local function StartServices(numServices)
 	local completed = Engine.Classes.Signal.new()
-	
-	for _, service in pairs(Engine.Services) do
+
+	for _name, service in pairs(Engine.Services) do
 		Engine.Modules.ThreadUtil.Spawn(function()
 			service:EngineStart()
 			numServices -= 1
@@ -175,7 +193,9 @@ end
 -- Loads and runs plugins
 local function DoPlugins()
 	for _, pluginModule in ipairs(Server.Plugins:GetChildren()) do
-		require(pluginModule)
+        Engine.Modules.ThreadUtil.Spawn(function()
+		    require(pluginModule)
+        end)
 	end
 end
 
@@ -285,9 +305,19 @@ Clients.CharacterAutoLoads = true
 local function PrepareWaitingClients()
 	for _, client in ipairs(game:GetService("Players"):GetPlayers()) do
 		Client:Clone().Parent = client
-		client:LoadCharacter()
+	end
+
+	wait(2)
+
+	for _, client in ipairs(game:GetService("Players"):GetPlayers()) do
+		if (client.Character == nil) then
+			client:LoadCharacter()
+		end
 	end
 end
+
+
+Engine:Print("Ready!")
 
 
 PrepareWaitingClients()

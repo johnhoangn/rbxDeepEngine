@@ -7,7 +7,7 @@
 
 
 
-local SyncRandomService = {Priority = 450}
+local SyncRandomService = {Priority = 940}
 local Network
 local HttpService
 

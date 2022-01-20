@@ -45,7 +45,7 @@
 
 
 
-local AssetService = {DownloadListSize = 0}
+local AssetService = { DownloadListSize = 0; Priority = 900 }
 local Network
 local ThreadUtil
 local AssetCache, DownloadList

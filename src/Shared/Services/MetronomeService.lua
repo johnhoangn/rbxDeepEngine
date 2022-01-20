@@ -7,6 +7,7 @@
 local MetronomeService = {Priority = 1001}
 local Frequencies = {}
 local Tasks = {}
+local Heartbeats
 local HTTPService, RunService
 
 
@@ -43,7 +44,7 @@ end
 function MetronomeService:Unbind(taskID)
     local task = Tasks[taskID]
 
-    assert(task ~= nil, "Invalid taskID " .. taskID)
+    assert(task ~= nil, "Invalid taskID " .. tostring(taskID))
 
     local frequency = task.Frequency
 
@@ -55,6 +56,24 @@ function MetronomeService:Unbind(taskID)
     if (Frequencies[frequency].NumTasks <= 0) then
         Frequencies[frequency] = nil
     end
+end
+
+
+-- Main pipeline could be bogged down, this bypasses it
+-- Avoid using this.
+-- @param callback <function>
+-- @returns <string>
+function MetronomeService:BindToHeartbeat(callback)
+	local jobID = HTTPService:GenerateGUID()
+	Heartbeats:Add(jobID, RunService.Heartbeat:Connect(callback))
+	return jobID
+end
+
+
+-- @param jobID <string>
+function MetronomeService:UnbindFromHeartbeat(jobID)
+	Heartbeats:Get(jobID):Disconnect()
+	Heartbeats:Remove(jobID)
 end
 
 
@@ -121,7 +140,7 @@ function MetronomeService:EngineInit()
 	HTTPService = self.RBXServices.HttpService
     RunService = self.RBXServices.RunService
 
-    TaskMutex = self.Classes.Mutex.new()
+	Heartbeats = self.Classes.IndexedMap.new()
 end
 
 

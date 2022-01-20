@@ -20,7 +20,7 @@
 
 
 
-local SoundService = {}
+local SoundService = { Priority = 850 }
 local Network, AssetService, HttpService
 local SoundClass
 
@@ -88,7 +88,7 @@ end
 -- @return <Sound> (Wrapper)
 function SoundService:Make(soundClass, baseID, soundID, propertiesTable)
 	local soundAsset = AssetService:GetAsset(baseID)
-	local sound = self.Instancer.Sound.new(soundAsset.Sound)
+	local sound = self.Classes.Sound.new(soundAsset.Sound)
 
     soundID = soundID or HttpService:GenerateGUID()
 

@@ -3,7 +3,6 @@
 -- May 9, 2021
 
 --[[
-
 	Creating packets:
 	Network:Pack(protocol, requestType, ...)
 	Network:PackSimple(requestType, ...)
@@ -26,11 +25,11 @@ local BULK_REQUEST_SIZE = 60
 local MAX_BUDGET = 30
 
 
-local Network = {Priority = 500}
-local SyncService, HttpService, MetronomeService
+local Network = { Priority = 1000 }
+local MetronomeService
 local NetProtocol, NetRequestType, PacketStatus
 local Router
-local TableUtil, ThreadUtil
+local TableUtil
 
 
 local Budget = MAX_BUDGET
@@ -41,7 +40,7 @@ local AwaitingResponses, RequestHandlers, PendingRequests, SendQueue
 -- @param stamp
 -- @return [0, deltaTime]
 local function TimeDelta(stamp)
-	return math.max(0, SyncService:GetTime() - stamp)
+	return math.max(0, workspace:GetServerTimeNow() - stamp)
 end
 
 
@@ -55,7 +54,6 @@ local function HandleInbound(packet)
 	local packetID = packet[4]
 	local requestType = packet[5]
 	local body = packet[6]
-	local now = SyncService:GetTime()
 	
 	-- This packet is a request
 	if (status == PacketStatus.Request) then
@@ -120,7 +118,7 @@ local function ProcessSendQueue()
 	
 	if (batchSize > 0) then
 		local batch = table.create(batchSize)
-		local now = SyncService:GetTime()
+		local now = workspace:GetServerTimeNow()
 		
 		for i = 1, batchSize do
 			local packet = SendQueue:Dequeue()
@@ -179,7 +177,7 @@ function Network:RequestServer(requestType, ...)
 		...
 	)
 	
-	self:FireServer(packet, function(deltaTime, ...)
+	self:FireServer(packet, function(_deltaTime, ...)
 		fulfillmentSignal:Fire(...)
 		fulfillmentSignal:Destroy()
 	end)
@@ -220,7 +218,7 @@ function Network:HandleRequestType(requestType, requestHandler)
 	RequestHandlers:Add(requestType, requestHandler)
 	
 	local indexedToRemove = {}
-	local now = SyncService:GetTime()
+	local now = workspace:GetServerTimeNow()
 	
 	-- pendingRequest = {requestType, timestamp, body}
 	for i, pendingRequest in ipairs(PendingRequests) do
@@ -234,7 +232,7 @@ function Network:HandleRequestType(requestType, requestHandler)
 	end
 	
 	for _, i in ipairs(indexedToRemove) do
-		TableUtil.FastRemove(PendingRequests, i)
+		table.remove(PendingRequests, i)
 	end
 end
 
@@ -249,9 +247,7 @@ end
 
 function Network:EngineInit()
 	MetronomeService = self.Services.MetronomeService
-	SyncService = self.Services.SyncService
 	
-	HttpService = self.RBXServices.HttpService
 	Router = self.RBXServices.ReplicatedStorage.Router
 	
 	NetProtocol = self.Enums.NetProtocol
@@ -259,7 +255,6 @@ function Network:EngineInit()
 	PacketStatus = self.Enums.PacketStatus
 	
 	TableUtil = self.Modules.TableUtil
-	ThreadUtil = self.Modules.ThreadUtil
 	
 	AwaitingResponses = self.Classes.IndexedMap.new()
 	RequestHandlers = self.Classes.IndexedMap.new()
@@ -276,15 +271,6 @@ function Network:EngineStart()
 	Router.OnClientEvent:Connect(HandleInbound)
 	MetronomeService:BindToFrequency(1, ProcessSendQueue)
 	MetronomeService:BindToFrequency(1, BudgetHandler)
-	
-	--[[
-	local Region = game:GetHostLocation()
-
-	if Region == Enum.ServerHostRegion.USEast then
-		print("Timezone: EST")
-	elseif Region == Enum.ServerHostRegion.USCentral then
-		print("Timezone: CST")
-	end]]
 end
 
 

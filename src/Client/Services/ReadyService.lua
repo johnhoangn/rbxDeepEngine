@@ -14,7 +14,7 @@
 
 
 
-local Ready = {}
+local Ready = { Priority = 0 }
 local Network
 
 

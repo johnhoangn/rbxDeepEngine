@@ -12,7 +12,7 @@
 
 
 
-local EffectService = {}
+local EffectService = { Priority = 750 }
 local Network, HttpService, AssetService
 
 

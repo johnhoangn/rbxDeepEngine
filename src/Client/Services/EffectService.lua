@@ -12,7 +12,7 @@
 
 
 
-local EffectService = {}
+local EffectService = { Priority = 850 }
 local Network, AssetService, HttpService
 
 
@@ -81,16 +81,18 @@ function EffectService:Make(baseID, effectUID, dt, ...)
 			if (not EffectCaches:Contains(baseID)) then
 				EffectCaches:Add(baseID, self.Classes.Queue.new())
 			end
-			
+
 			-- Insert this effect into the appropriate queue
 			EffectCaches:Get(baseID):Enqueue(effect)
 		end)
 	end
 	
-	-- Log this effect 
+	-- Log this effect
+    effect.UID = uid
+    effect:Preload(dt, ...)
 	ActiveEffects:Add(uid, effect)
 	
-	self.Modules.ThreadUtil.Spawn(effect.Play, effect, dt, ...)
+	self.Modules.ThreadUtil.SpawnNow(effect.Play, effect, dt, ...)
 	
 	return uid
 end

@@ -19,13 +19,20 @@ local Engine = {
 
 	DebugLevel = 1;
 
-	_ServiceName = "Deep Engine Client";
+	_ServiceName = "DGF Client";
 }
 
 
 local mt = {
     __index = Engine;
 }
+
+
+ClientFolder:WaitForChild("Enums")
+ClientFolder:WaitForChild("Services")
+ClientFolder:WaitForChild("Modules")
+ClientFolder:WaitForChild("Plugins")
+Engine.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule")
 
 
 -- Includes the provided module into the Deep Engine
@@ -66,14 +73,21 @@ end
 
 -- Console debugging
 function Engine:Print(...)
-	print(self._ServiceName .. "\n", ...)
+	print(self._ServiceName .. "\n >>>", ...)
 end
 function Engine:Warn(...)
-	warn(self._ServiceName .. "\n", ...)
+	warn(self._ServiceName .. "\n >>>", ...)
 end
 function Engine:Log(level, ...)
+	local logFile = Engine.EnvironmentFolder:FindFirstChild("LogFile")
+	if (not logFile) then
+		logFile = Instance.new("StringValue")
+		logFile.Name = "LogFile"
+		logFile.Parent = Engine.EnvironmentFolder
+	end
 	if (level <= Engine.DebugLevel) then
-		self:Print("DEBUG", ...)
+		local contents = {...}; for k, v in ipairs(contents) do contents[k] = tostring(v) end
+		logFile.Value ..= "[LEVEL " .. level .. "] " .. self._ServiceName .. ": " .. table.concat(contents, " ") .. "\n"
 	end
 end
 
@@ -96,15 +110,27 @@ local function LoadServices()
 		
 		Engine:Link(service)
 		service._ServiceName = serviceModule.Name
+		service.Priority = service.CPriority or service.Priority or 500
+        service.CPriority = nil
 		Engine.Services[serviceModule.Name] = service
 		table.insert(ServiceInitPriorityQueue, service)
 	end
 	
 	-- More positive number, earlier turn
 	table.sort(ServiceInitPriorityQueue, function(a, b)
-		return (a.Priority or 0) > (b.Priority or 0)
+        if ((a.Priority or 0) == (b.Priority or 0)) then
+            return a._ServiceName < b._ServiceName
+        else
+		    return (a.Priority or 0) > (b.Priority or 0)
+        end
 	end)
 	
+    local serviceInitOrder = {}
+    for _, serviceModule in ipairs(ServiceInitPriorityQueue) do
+        table.insert(serviceInitOrder, ("%4d - %s"):format(serviceModule.Priority, serviceModule._ServiceName))
+    end
+    print("\n", table.concat(serviceInitOrder, "\n "))
+
 	return ServiceInitPriorityQueue
 end
 
@@ -141,7 +167,9 @@ end
 -- Loads and runs plugins
 local function DoPlugins()
 	for _, pluginModule in ipairs(ClientFolder.Plugins:GetChildren()) do
-		require(pluginModule)
+        Engine.Modules.ThreadUtil.Spawn(function()
+		    require(pluginModule)
+        end)
 	end
 end
 
@@ -247,3 +275,5 @@ for _, child in ipairs(ClientFolder.Parent:GetChildren()) do
 		child:Destroy()
 	end
 end
+
+Engine:Print("Done!")

@@ -29,7 +29,7 @@
 
 
 
-local AssetService = {Priority = 110}
+local AssetService = { Priority = 800 }
 local Network, HttpService
 local ClassNames = {}
 local Hexadecimal
