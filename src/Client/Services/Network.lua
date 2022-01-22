@@ -87,9 +87,9 @@ local function HandleInbound(packet)
 			
 		-- We aren't listening to this request yet, store it in the pending list
 		else
-			table.insert(PendingRequests, {
-				requestType, timestamp, body
-			})
+            PendingRequests:Enqueue({
+                requestType, timestamp, body
+            })
 		end	
 		
 	-- This packet is a reply 
@@ -217,22 +217,17 @@ function Network:HandleRequestType(requestType, requestHandler)
 		"Attempt to overwrite requestHandler for " .. requestType)
 	RequestHandlers:Add(requestType, requestHandler)
 	
-	local indexedToRemove = {}
 	local now = workspace:GetServerTimeNow()
-	
-	-- pendingRequest = {requestType, timestamp, body}
-	for i, pendingRequest in ipairs(PendingRequests) do
-		if (pendingRequest[1] == requestType) then
-			requestHandler(
-				now - pendingRequest[2],
-				unpack(pendingRequest[3])
-			)
-			table.insert(indexedToRemove, i)
-		end
-	end
-	
-	for _, i in ipairs(indexedToRemove) do
-		table.remove(PendingRequests, i)
+	local matchingRequests = PendingRequests:RemoveAllWhere(function(data)
+        return data[1] == requestType
+    end)
+
+    -- match = {requestType, timestamp, body}
+	for _, match in ipairs(matchingRequests) do
+        requestHandler(
+            now - match[2],
+            unpack(match[3])
+        )
 	end
 end
 
@@ -258,7 +253,7 @@ function Network:EngineInit()
 	
 	AwaitingResponses = self.Classes.IndexedMap.new()
 	RequestHandlers = self.Classes.IndexedMap.new()
-	PendingRequests = {}
+	PendingRequests = self.Classes.Queue.new()
 	SendQueue = self.Classes.Queue.new()
 
 	self.NetProtocol = NetProtocol

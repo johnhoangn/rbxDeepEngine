@@ -1,3 +1,6 @@
+-- Doubly linked list with sentinel nodes
+
+
 local Queue = {}
 local Node = {}
 Queue.__index = Queue
@@ -78,7 +81,7 @@ end
 function Queue:FindFirstWhere(callback)
 	local curr = self.Head.Next
 	
-	while (curr ~= nil) do
+	while (curr ~= self.Tail) do
 		if (callback(curr.Data) == true) then
 			return curr.Data
 		else
@@ -87,6 +90,30 @@ function Queue:FindFirstWhere(callback)
 	end
 	
 	return nil
+end
+
+
+-- Searches from the beginning of the queue for all payloads
+--  where callback(payload) returns true and removes them
+-- @param callback <function> search qualifier
+-- @returns array<payload> removed
+function Queue:RemoveAllWhere(callback)
+    local curr = self.Head.Next
+    local removed = {}
+
+    if (self:IsEmpty()) then
+        return removed
+    end
+
+	while (curr ~= self.Tail) do
+		if (callback(curr.Data) == true) then
+			curr.Prev.Next = curr.Next
+            table.insert(removed, curr.Data)
+		end
+        curr = curr.Next
+	end
+	
+	return removed
 end
 
 
